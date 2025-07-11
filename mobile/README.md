@@ -77,3 +77,5 @@ Need Nursing Care at Home
 ambulance & morg van book
 
 # write externel those file or downloads to run the app
+
+npm install @expo/vector-icons

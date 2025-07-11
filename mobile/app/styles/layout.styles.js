@@ -4,10 +4,24 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-    tabBar: {
-    backgroundColor: '#c6c6c6ff',
-    borderTopWidth: 1,
-    borderTopColor: '#ccc',
+     tabBar: {
+    backgroundColor: '#ffffffff',
+    borderTopWidth: 0,
+    height: 60,
+    marginHorizontal: 20,
+    marginBottom: 40,
+    borderRadius: 30,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 })
 
