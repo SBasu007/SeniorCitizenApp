@@ -48,3 +48,32 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+
+# Our features in app
+Chat 
+
+2.ai based family group to chat
+4.chatbot / ai based doctor home visit booking
+[ ai can book medical services , ambulances and morg van ]
+
+Family
+
+5.family tracing 
+6.nearest senior friend 
+
+Home
+
+1.Giving daily report on basis quiz/ai calling 
+
+3.smart medication reminder
+
+medical services 
+
+Medical Procedures at Home
+Medical Equipment on Rent
+Physiotherapy at Home
+Need Nursing Care at Home
+ambulance & morg van book
+
+# write externel those file or downloads to run the app
