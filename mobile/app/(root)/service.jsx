@@ -7,6 +7,7 @@ export default function IService() {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "#FCF3F2"
       }}
     >
       <Text>Makes services here</Text>

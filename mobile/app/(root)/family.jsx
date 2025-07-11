@@ -7,6 +7,7 @@ export default function Family() {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "#FCF3F2"
       }}
     >
       <Text>This is family page</Text>

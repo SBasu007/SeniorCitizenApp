@@ -39,6 +39,7 @@ export default function TabLayout() {
                                 borderRadius: 30,
                                 alignItems: 'center',
                                 justifyContent: 'center',
+                                paddingBottom: 10
                             }}
                         >
                             <IconComponent
@@ -62,9 +63,9 @@ export default function TabLayout() {
                 ),
             })}
         >
-            <Tabs.Screen name="index" options={{ headerTitle: 'Sarthi AI' , headerStyle: { backgroundColor: "#FCF3F2"}}} />
-            <Tabs.Screen name="family" options={{ headerTitle: 'Find Family', headerStyle: { backgroundColor: "#FCF3F2"} }} />
-            <Tabs.Screen name="service" options={{ headerTitle: 'Book Service', headerStyle: { backgroundColor: "#FCF3F2"} }} />
+            <Tabs.Screen name="index" options={{ headerTitle: 'Saarthi AI', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
+            <Tabs.Screen name="family" options={{ headerTitle: 'Find Family', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
+            <Tabs.Screen name="service" options={{ headerTitle: 'Book Service', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
         </Tabs>
     );
 }
