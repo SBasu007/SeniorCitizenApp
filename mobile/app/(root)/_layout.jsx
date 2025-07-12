@@ -22,14 +22,18 @@ export default function TabLayout() {
 
                     if (route.name === 'index') {
                         IconComponent = MaterialIcons;
-                        iconName = 'assignment'; // report icon
-                    } else if (route.name === 'family') {
+                        iconName = 'timer'; // report icon
+                    }else if (route.name === 'record') {
+                        IconComponent = FontAwesome5;
+                        iconName = 'file'; // service icon
+                    }
+                    else if (route.name === 'family') {
                         IconComponent = FontAwesome5;
                         iconName = 'users';
                     } else if (route.name === 'service') {
                         IconComponent = FontAwesome5;
                         iconName = 'concierge-bell'; // service icon
-                    }
+                    } 
 
                     return (
                         <View
@@ -48,7 +52,7 @@ export default function TabLayout() {
                                 color={focused ? 'red' : 'black'}
                             />
                             <Text style={{ color: focused ? 'red' : 'black', fontSize: 12 }}>
-                                {route.name === 'index' ? 'Report' : route.name.charAt(0).toUpperCase() + route.name.slice(1)}
+                                {route.name === 'index' ? 'Timer' : route.name.charAt(0).toUpperCase() + route.name.slice(1)}
                             </Text>
                         </View>
                     );
@@ -63,8 +67,9 @@ export default function TabLayout() {
                 ),
             })}
         >
-            <Tabs.Screen name="index" options={{ headerTitle: 'Saarthi AI', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
-            <Tabs.Screen name="family" options={{ headerTitle: 'Find Family', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
+            <Tabs.Screen name="index" options={{ headerTitle: 'Medicine Timer', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
+            <Tabs.Screen name="record" options={{ headerTitle: 'Records', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
+            <Tabs.Screen name="family" options={{ headerTitle: 'Family', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
             <Tabs.Screen name="service" options={{ headerTitle: 'Book Service', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
         </Tabs>
     );
