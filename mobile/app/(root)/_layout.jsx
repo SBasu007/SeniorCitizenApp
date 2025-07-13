@@ -32,7 +32,7 @@ export default function TabLayout() {
                         iconName = 'users';
                     } else if (route.name === 'service') {
                         IconComponent = FontAwesome5;
-                        iconName = 'concierge-bell'; // service icon
+                        iconName = 'ambulance'; // service icon
                     } 
 
                     return (
@@ -68,9 +68,9 @@ export default function TabLayout() {
             })}
         >
             <Tabs.Screen name="index" options={{ headerTitle: 'Medicine Timer', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
-            <Tabs.Screen name="record" options={{ headerTitle: 'Records', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
-            <Tabs.Screen name="family" options={{ headerTitle: 'Family', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
-            <Tabs.Screen name="service" options={{ headerTitle: 'Book Service', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
+            <Tabs.Screen name="record" options={{ headerTitle: 'Health Records', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
+            <Tabs.Screen name="family" options={{ headerTitle: 'Family Access', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
+            <Tabs.Screen name="service" options={{ headerTitle: 'Book Our Service', headerStyle: { backgroundColor: "#FCF3F2" }, headerShadowVisible: false }} />
         </Tabs>
     );
 }
