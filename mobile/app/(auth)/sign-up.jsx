@@ -78,10 +78,10 @@ export default function SignUpScreen() {
 
         {error ? (
           <View style={styles.errorBox}>
-            <Ionicons name="alert-circle" size={20} color={COLORS.expense} />
+            <Ionicons name="alert-circle" size={20} />
             <Text style={styles.errorText}>{error}</Text>
             <TouchableOpacity onPress={() => setError("")}>
-              <Ionicons name="close" size={20} color={COLORS.textLight} />
+              <Ionicons name="close" size={20} />
             </TouchableOpacity>
           </View>
         ) : null}
@@ -115,10 +115,10 @@ export default function SignUpScreen() {
 
         {error ? (
           <View style={styles.errorBox}>
-            <Ionicons name="alert-circle" size={20} color={COLORS.expense} />
+            <Ionicons name="alert-circle" size={20}  />
             <Text style={styles.errorText}>{error}</Text>
             <TouchableOpacity onPress={() => setError("")}>
-              <Ionicons name="close" size={20} color={COLORS.textLight} />
+              <Ionicons name="close" size={20} />
             </TouchableOpacity>
           </View>
         ) : null}
