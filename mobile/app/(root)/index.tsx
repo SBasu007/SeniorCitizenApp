@@ -10,7 +10,7 @@ export default function Index() {
         backgroundColor: "#FCF3F2"
       }}
     >
-      <Text>Make sarthi ai in this page</Text>
+      <Text>Make sarthi ai in this page or dont</Text>
     </View>
   );
 }
