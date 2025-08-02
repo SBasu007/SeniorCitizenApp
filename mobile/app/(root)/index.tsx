@@ -1,5 +1,4 @@
 import { Text, View } from "react-native";
-import { styles } from "../styles/index.styles.js";
 export default function Index() {
   return (
     <View
