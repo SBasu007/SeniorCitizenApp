@@ -1,8 +1,8 @@
 import {Request,Response, Router} from "express";
-import { supabase } from "../supabase.server";
+import { supabase } from "../supabase.server.js";
 
 
-const router = Router();
+const router:Router = Router();
 
 router.post("/signup",async(req:Request,res:Response)=>{
     const user_id = "something"

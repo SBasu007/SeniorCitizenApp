@@ -1,16 +1,23 @@
-import { Text, View } from "react-native";
+import { Text, View, SafeAreaView, StyleSheet } from "react-native";
 
 export default function IService() {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#FCF3F2"
-      }}
-    >
-      <Text>Makes services here</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <Text>Sup</Text>
+      </View>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#FCF3F2"
+  },
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  }
+});
