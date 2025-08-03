@@ -378,3 +378,4 @@ export const recordStyles = StyleSheet.create({
     lineHeight: 20,
   },
 });
+export default recordStyles;

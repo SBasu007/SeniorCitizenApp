@@ -368,3 +368,4 @@ export const dashboardStyles = StyleSheet.create({
     lineHeight: 20,
   },
 });
+export default dashboardStyles;

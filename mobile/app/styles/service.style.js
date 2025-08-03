@@ -345,3 +345,4 @@ export const servicesStyles = StyleSheet.create({
     marginTop: 10,
   },
 });
+export default servicesStyles;
