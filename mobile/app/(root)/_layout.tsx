@@ -7,30 +7,30 @@ export default function RootLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#DC2626', // Red color for active tabs
-        tabBarInactiveTintColor: '#9CA3AF', // Light gray for inactive tabs
+        tabBarActiveTintColor: '#DC2626',
+        tabBarInactiveTintColor: '#9CA3AF',
         headerShown: false,
         tabBarStyle: Platform.select({
           ios: {
-            backgroundColor: '#FFFFFF', // White background
+            backgroundColor: '#FFFFFF',
             borderTopWidth: 1,
-            borderTopColor: '#FCA5A5', // Light red border
+            borderTopColor: '#FCA5A5',
             height: 85,
             paddingBottom: 25,
             paddingTop: 10,
-            shadowOpacity: 0,      // <-- remove shadow
-            shadowColor: 'transparent', // <-- remove shadow
+            shadowOpacity: 0,
+            shadowColor: 'transparent',
           },
           default: {
-            backgroundColor: '#FFFFFF', // White background
+            backgroundColor: '#FFFFFF',
             borderTopWidth: 1,
-            borderTopColor: '#FCA5A5', // Light red border
+            borderTopColor: '#FCA5A5',
             height: 65,
             paddingBottom: 10,
             paddingTop: 5,
-            elevation: 0,          // <-- remove shadow
-            shadowOpacity: 0,      // <-- remove shadow
-            shadowColor: 'transparent', // <-- remove shadow
+            elevation: 0,
+            shadowOpacity: 0,
+            shadowColor: 'transparent',
           },
         }),
         tabBarLabelStyle: {

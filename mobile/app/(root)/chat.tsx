@@ -9,6 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router'; // Change this import
 import { chatStyles } from '../styles/chat.styles';
 
 interface Message {
@@ -53,6 +54,11 @@ export default function ChatScreen() {
   const handleVoicePress = () => {
     // Implement voice recording functionality
     console.log('Voice button pressed');
+  };
+
+  // Update this function to use Expo Router
+  const handleAvatarPress = () => {
+    router.push('/profile');
   };
 
   const formatTime = (date: Date) => {
@@ -111,15 +117,19 @@ export default function ChatScreen() {
     >
       {/* Header */}
       <View style={chatStyles.header}>
-        <View>
+        <View style={chatStyles.headerInfo}>
           <Text style={chatStyles.headerTitle}>Diagno AI</Text>
           <Text style={chatStyles.headerSubtitle}>
             {isTyping ? 'Typing...' : 'Online'}
           </Text>
         </View>
-        <View style={chatStyles.avatarContainer}>
-          <Text style={chatStyles.avatarText}>AI</Text>
-        </View>
+        <TouchableOpacity 
+          style={chatStyles.avatarContainer} 
+          onPress={handleAvatarPress}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="person-circle" size={40} color="#c71010ff" />
+        </TouchableOpacity>
       </View>
 
       {/* Messages */}

@@ -163,4 +163,51 @@ export const chatStyles = StyleSheet.create({
   disabledButton: {
     backgroundColor: '#E0E0E0', // Gray when disabled
   },
+  // Add these styles to your existing chat.styles.ts file
+
+// header: {
+//   flexDirection: 'row',
+//   justifyContent: 'space-between',
+//   alignItems: 'center',
+//   paddingHorizontal: 20,
+//   paddingTop: 50,
+//   paddingBottom: 15,
+//   backgroundColor: '#FFFFFF',
+//   borderBottomWidth: 1,
+//   borderBottomColor: '#E5E5E5',
+// },
+
+headerInfo: {
+  flex: 1,
+},
+
+// headerTitle: {
+//   fontSize: 18,
+//   fontWeight: '700',
+//   color: '#000',
+// },
+
+// headerSubtitle: {
+//   fontSize: 14,
+//   color: '#666',
+//   marginTop: 2,
+// },
+
+avatarContainer: {
+  width: 45,
+  height: 45,
+  borderRadius: 22.5,
+  backgroundColor: '#F0F0F0',
+  justifyContent: 'center',
+  alignItems: 'center',
+  shadowColor: '#000',
+  shadowOffset: {
+    width: 0,
+    height: 2,
+  },
+  shadowOpacity: 0.1,
+  shadowRadius: 3,
+  elevation: 3,
+},
+
 });
