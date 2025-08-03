@@ -342,6 +342,7 @@ export default function ChatScreen() {
           </TouchableOpacity>
         </View>
       </View>
+      
     </KeyboardAvoidingView>
   );
 }
