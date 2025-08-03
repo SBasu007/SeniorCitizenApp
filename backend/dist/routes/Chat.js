@@ -120,30 +120,33 @@ router.get('/history/:userId', (req, res) => {
         }))
     });
 });
+// Update the existing DELETE route in chat.ts
 // Clear conversation history
 router.delete('/history/:userId', (req, res) => {
     const { userId } = req.params;
+    if (!userId) {
+        return res.status(400).json({
+            error: 'UserId is required'
+        });
+    }
+    // Clear the conversation history for the user
     conversationHistory.delete(userId);
-    res.json({ message: 'Conversation history cleared' });
+    res.json({
+        message: 'Conversation history cleared successfully',
+        timestamp: new Date()
+    });
 });
-// Health tips endpoint (optional - for providing daily health tips)
-router.get('/health-tip', async (req, res) => {
-    try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        const prompt = `Provide a short, practical daily health tip in 2-3 sentences. Focus on topics like nutrition, exercise, mental health, sleep, or preventive care. Make it actionable and easy to follow.`;
-        const result = await model.generateContent(prompt);
-        const healthTip = result.response.text();
-        res.json({
-            tip: healthTip,
-            timestamp: new Date()
-        });
-    }
-    catch (error) {
-        console.error('Health tip error:', error);
-        res.status(500).json({
-            error: 'Failed to generate health tip',
-            fallback: "Stay hydrated! Drink at least 8 glasses of water daily to maintain good health and energy levels."
-        });
-    }
+// Optional: Add a new endpoint to archive conversations before clearing
+router.post('/archive/:userId', (req, res) => {
+    const { userId } = req.params;
+    const history = conversationHistory.get(userId) || [];
+    // Here you could save to a database for chat history preservation
+    // For now, we'll just return the history that would be archived
+    conversationHistory.delete(userId);
+    res.json({
+        message: 'Conversation archived and cleared',
+        archivedMessages: history.length,
+        timestamp: new Date()
+    });
 });
 export default router;

@@ -6,6 +6,9 @@ import { styles } from "../styles/auth.styles.js";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { authAPI } from "../utils/axiosApi.js";
+
+
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -57,8 +60,22 @@ export default function SignUpScreen() {
       // If verification was completed, set the session to active
       // and redirect the user
       if (signUpAttempt.status === "complete") {
-        await setActive({ session: signUpAttempt.createdSessionId });
-        router.replace("/");
+        const sessionId = signUpAttempt.createdSessionId;
+        await setActive({ session: sessionId });
+    
+        // Call your backend API with the token
+        try {
+          const response = await authAPI.signupUser({
+            email: emailAddress,
+            password: password
+          }, sessionId);
+          console.log("Backend signup successful:", response);
+        } catch (apiError) {
+          console.error("Backend signup failed:", apiError);
+          // You might want to handle this error differently
+        }
+        
+        router.replace("/(root)/dashboard");
       } else {
         // If the status is not complete, check why. User may need to
         // complete further steps.
