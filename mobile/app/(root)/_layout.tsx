@@ -2,9 +2,15 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FloatingAgentButton from '../FloatingAgent';
 
 export default function RootLayout() {
+  const insets = useSafeAreaInsets();
+  
+  // Detect if using gesture navigation (typically bottom inset > 0 on Android)
+  const isGestureNavigation = Platform.OS === 'android' && insets.bottom > 0;
+  
   return (
     <View style={{ flex: 1 }}>
       <Tabs
@@ -33,7 +39,8 @@ export default function RootLayout() {
               elevation: 0,
               shadowOpacity: 0,
               shadowColor: 'transparent',
-              marginBottom: 45
+              // Dynamic margin based on navigation type
+              marginBottom: isGestureNavigation ? 0 : 45,
             },
           }),
           tabBarLabelStyle: {
@@ -42,6 +49,7 @@ export default function RootLayout() {
           },
         }}
       >
+        {/* Your tab screens remain the same */}
         <Tabs.Screen
           name="chat"
           options={{
