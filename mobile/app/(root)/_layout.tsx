@@ -33,6 +33,7 @@ export default function RootLayout() {
               elevation: 0,
               shadowOpacity: 0,
               shadowColor: 'transparent',
+              marginBottom: 45
             },
           }),
           tabBarLabelStyle: {

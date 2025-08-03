@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { recordStyles } from '../styles/record.style';
+import { useUser } from '@clerk/clerk-expo';
 
 interface MedicalRecord {
   id: string;
@@ -28,7 +29,8 @@ interface FamilyMember {
 export default function RecordScreen() {
   const [fadeAnim] = useState(new Animated.Value(0));
   const [slideAnim] = useState(new Animated.Value(50));
-
+  const {user} = useUser()
+  if (!user) return <Text>Loading user...</Text>;
   // Sample data
   const medicalRecords: MedicalRecord[] = [
     {
@@ -153,7 +155,7 @@ export default function RecordScreen() {
                 <Text style={recordStyles.profileInitials}>JD</Text>
               </View>
               <View style={recordStyles.profileInfo}>
-                <Text style={recordStyles.profileName}>John Doe</Text>
+                <Text style={recordStyles.profileName}>John Doe {user.id}</Text>
                 <Text style={recordStyles.profileDetails}>Age: 32 • Male</Text>
                 <Text style={recordStyles.profileDetails}>Blood Type: O+</Text>
                 <Text style={recordStyles.profileDetails}>Last Checkup: Aug 2, 2024</Text>
@@ -223,9 +225,9 @@ export default function RecordScreen() {
       </ScrollView>
 
       {/* Floating Action Button */}
-      <TouchableOpacity style={recordStyles.fab}>
+      {/* <TouchableOpacity style={recordStyles.fab}>
         <Ionicons name="add" size={28} color="#FFFFFF" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 }
