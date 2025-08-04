@@ -15,11 +15,8 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
         const dataBuffer = fs.readFileSync(file.path);
         const pdfData = await pdfParse(dataBuffer);
         const textContent = pdfData.text;
-        console.log("Extracted Text:", textContent);
         res.status(200).json({
             message: "Upload and parsing successful",
-            filename: file.originalname,
-            text: textContent
         });
     }
     catch (err) {

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Animated,
   Image,
+  Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { recordStyles } from '../styles/record.style';
@@ -34,29 +35,50 @@ export default function RecordScreen() {
 
 //pdf handling
 const pickAndUploadPDF = async () => {
-  const result = await DocumentPicker.getDocumentAsync({
-    type: 'application/pdf',
-  });
+  try {
+    // Pick the PDF file
+    const result = await DocumentPicker.getDocumentAsync({
+      type: 'application/pdf',
+      copyToCacheDirectory: true,
+    });
 
-  if (!result.canceled && result.assets && result.assets.length > 0) {
-    const file = result.assets[0];
-    const { uri, name } = file;
+    if (result.canceled || !result.assets || result.assets.length === 0) {
+      console.log('Document upload cancelled or failed');
+      return;
+    }
 
-    const response = await fetch(uri);
-    const blob = await response.blob();
+    const asset = result.assets[0];
+    const fileToUpload = {
+      uri: asset.uri,
+      name: asset.name ?? 'document.pdf',
+      type: asset.mimeType ?? 'application/pdf',
+    };
 
     const formData = new FormData();
-    formData.append('pdf', blob, name);
+    formData.append('pdf', fileToUpload as any); 
 
-    console.log("Uploading...");
+    console.log('Uploading...');
 
-    const res = await fetch('https://seniorcitizenapp.onrender.com/pdf/upload-pdf', {
+    const response = await fetch('https://seniorcitizenapp.onrender.com/pdf/upload-pdf', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
       body: formData,
     });
 
-    const data = await res.json();
-    console.log('Upload response:', data);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Upload failed:', errorText);
+      Alert.alert('Upload failed');
+      return;
+    }
+
+    const responseData = await response.json();
+    console.log('Upload success');
+    Alert.alert('Success', 'PDF uploaded successfully!');
+  } catch (error) {
+    console.error('Error uploading PDF:', error);
   }
 };
 
