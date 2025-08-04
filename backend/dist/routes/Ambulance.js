@@ -1,7 +1,8 @@
 import supabase from "../middleware/supabase.js";
+import authenticateUser from "../middleware/auth";
 import { Router } from "express";
 const router = Router();
-router.get("/ambulances", async (req, res) => {
+router.get("/ambulances", authenticateUser, async (req, res) => {
     try {
         const { data, error } = await supabase.rpc("get_available_ambulances");
         if (error) {
