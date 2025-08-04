@@ -50,7 +50,7 @@ const pickAndUploadPDF = async () => {
 
     console.log("Uploading...");
 
-    const res = await fetch('http://localhost:3000/pdf/upload-pdf', {
+    const res = await fetch('https://seniorcitizenapp.onrender.com/pdf/upload-pdf', {
       method: 'POST',
       body: formData,
     });

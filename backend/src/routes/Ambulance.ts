@@ -1,5 +1,5 @@
-import supabase from "../middleware/supabase";
-import authenticateUser, { AuthenticatedRequest } from "../middleware/auth";
+import supabase from "../middleware/supabase.js";
+import authenticateUser, { AuthenticatedRequest } from "../middleware/auth.js";
 import { Router } from "express";
 import { Request,Response } from "express";
 
