@@ -17,6 +17,8 @@ app.use('/authSignUp', signUp);
 app.use('/ai-chat', chat);
 app.use('/available-ambulances',availableAmbulances)
 app.use('/pdf', pdfHandle)
+//test
+app.get('/ping', (_, res) => res.send('pong'));
 
 app.listen(3000, "0.0.0.0", () => {
     console.log("Backend working on port 3000");
