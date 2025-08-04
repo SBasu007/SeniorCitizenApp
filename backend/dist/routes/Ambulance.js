@@ -1,5 +1,5 @@
 import supabase from "../middleware/supabase.js";
-import authenticateUser from "../middleware/auth";
+import authenticateUser from "../middleware/auth.js";
 import { Router } from "express";
 const router = Router();
 router.get("/ambulances", authenticateUser, async (req, res) => {
