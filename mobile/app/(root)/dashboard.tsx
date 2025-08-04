@@ -5,11 +5,13 @@ import {
   ScrollView,
   TouchableOpacity,
   Animated,
-  TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useUser, useAuth } from '@clerk/clerk-expo';
+import { profileApi } from '../utils/axiosapi';          // ← path + name match
 import { dashboardStyles } from '../styles/dashboard.styles';
 
+/* ──────────── Types ──────────── */
 interface RecommendedVideo {
   id: string;
   title: string;
@@ -30,53 +32,47 @@ interface Article {
   category: string;
 }
 
+/* ─────────── Component ────────── */
 export default function DashboardScreen() {
+  /* animation + search */
   const [fadeAnim] = useState(new Animated.Value(0));
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');        // still here if you add a search bar later
 
-  // Sample data based on user's health profile
-  const recommendedVideos: RecommendedVideo[] = [
-    {
-      id: '1',
-      title: 'Understanding Your Blood Pressure',
-      doctor: 'Dr. Sarah Johnson',
-      duration: '8:45',
-      views: '125K views',
-      description: 'Learn about blood pressure management and lifestyle changes that can help improve your cardiovascular health.',
-      thumbnail: 'blood_pressure',
-    },
-    {
-      id: '2',
-      title: 'Managing Stress for Better Health',
-      doctor: 'Dr. Michael Chen',
-      duration: '12:30',
-      views: '89K views',
-      description: 'Discover effective stress management techniques and their impact on your overall well-being.',
-      thumbnail: 'stress_management',
-    },
-  ];
+  /* user’s name */
+  const { user } = useUser();
+  const { getToken } = useAuth();
+  const [userName, setUserName] = useState<string>('');
 
-  const featuredArticles: Article[] = [
-    {
-      id: '1',
-      title: 'The Science of Sleep',
-      description: 'Learn about the importance of sleep and how to improve your sleep quality for better health and well-being.',
-      author: 'Dr. Emily Watson',
-      date: 'Aug 1, 2024',
-      readTime: '5 min read',
-      category: 'Sleep Health',
-    },
-    {
-      id: '2',
-      title: 'Nutrition Basics',
-      description: 'Explore the fundamentals of nutrition and how nutrients and macronutrients affect your health.',
-      author: 'Dr. James Miller',
-      date: 'Jul 28, 2024',
-      readTime: '7 min read',
-      category: 'Nutrition',
-    },
-  ];
+  useEffect(() => {
+  (async () => {
+    if (!user?.id) return;
 
+    // Clerk: returns string | null
+    const token = await getToken();
+
+    // ─── NEW: bail out if we have no token ───
+    if (!token) {
+      setUserName(user.fullName ?? '');
+      console.warn('No session token available; using Clerk name only');
+      return;
+    }
+
+    try {
+      const res = await profileApi.getProfile(user.id, token); // token is now string ✅
+      const name =
+        res?.success && res.data?.name ? res.data.name : user.fullName ?? '';
+      setUserName(name);
+    } catch (err) {
+      console.warn('Could not fetch profile name:', err);
+      setUserName(user.fullName ?? '');
+    }
+  })();
+}, [user?.id, getToken]);
+
+
+
+
+  /* fade-in animation */
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -85,6 +81,54 @@ export default function DashboardScreen() {
     }).start();
   }, []);
 
+  /* sample data */
+  const recommendedVideos: RecommendedVideo[] = [
+    {
+      id: '1',
+      title: 'Understanding Your Blood Pressure',
+      doctor: 'Dr. Sarah Johnson',
+      duration: '8:45',
+      views: '125K views',
+      description:
+        'Learn about blood pressure management and lifestyle changes that can help improve your cardiovascular health.',
+      thumbnail: 'blood_pressure',
+    },
+    {
+      id: '2',
+      title: 'Managing Stress for Better Health',
+      doctor: 'Dr. Michael Chen',
+      duration: '12:30',
+      views: '89K views',
+      description:
+        'Discover effective stress management techniques and their impact on your overall well-being.',
+      thumbnail: 'stress_management',
+    },
+  ];
+
+  const featuredArticles: Article[] = [
+    {
+      id: '1',
+      title: 'The Science of Sleep',
+      description:
+        'Learn about the importance of sleep and how to improve your sleep quality for better health and well-being.',
+      author: 'Dr. Emily Watson',
+      date: 'Aug 1, 2024',
+      readTime: '5 min read',
+      category: 'Sleep Health',
+    },
+    {
+      id: '2',
+      title: 'Nutrition Basics',
+      description:
+        'Explore the fundamentals of nutrition and how nutrients and macronutrients affect your health.',
+      author: 'Dr. James Miller',
+      date: 'Jul 28, 2024',
+      readTime: '7 min read',
+      category: 'Nutrition',
+    },
+  ];
+
+  /* render helpers */
   const renderRecommendedVideo = (video: RecommendedVideo) => (
     <TouchableOpacity key={video.id} style={dashboardStyles.videoCard} activeOpacity={0.7}>
       <View style={dashboardStyles.videoThumbnail}>
@@ -102,7 +146,10 @@ export default function DashboardScreen() {
           <View style={dashboardStyles.doctorInfo}>
             <View style={dashboardStyles.doctorAvatar}>
               <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: 'bold' }}>
-                {video.doctor.split(' ').map(n => n[0]).join('')}
+                {video.doctor
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')}
               </Text>
             </View>
             <Text style={dashboardStyles.doctorName}>{video.doctor}</Text>
@@ -139,6 +186,7 @@ export default function DashboardScreen() {
     </TouchableOpacity>
   );
 
+  /* ───────── render ───────── */
   return (
     <View style={dashboardStyles.container}>
       {/* Header */}
@@ -146,7 +194,9 @@ export default function DashboardScreen() {
         <View style={dashboardStyles.headerTop}>
           <View>
             <Text style={dashboardStyles.welcomeText}>Good Morning</Text>
-            <Text style={dashboardStyles.userNameText}>John!</Text>
+            <Text style={dashboardStyles.userNameText}>
+              {userName ? `${userName}!` : '...'}
+            </Text>
           </View>
           <TouchableOpacity style={dashboardStyles.notificationButton}>
             <Ionicons name="notifications-outline" size={20} color="#333" />
@@ -159,8 +209,6 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Animated.View style={{ opacity: fadeAnim }}>
-
-
           {/* Recommended for You */}
           <View style={dashboardStyles.recommendedSection}>
             <View style={dashboardStyles.sectionHeader}>
@@ -172,6 +220,7 @@ export default function DashboardScreen() {
                 <Text style={dashboardStyles.viewAllText}>View All</Text>
               </TouchableOpacity>
             </View>
+
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -179,7 +228,6 @@ export default function DashboardScreen() {
             >
               {recommendedVideos.map(renderRecommendedVideo)}
             </ScrollView>
-
           </View>
 
           {/* Featured Articles */}

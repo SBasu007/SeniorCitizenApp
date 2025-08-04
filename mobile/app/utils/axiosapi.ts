@@ -38,3 +38,14 @@ export const authApi  = {
         }
     }
 }
+
+// axios.api.ts
+export const profileApi = {
+  /* GET  /profile/:userId  →  { success, data } */
+  getProfile: async (userId: string, token: string) => {
+    const res = await api.get(`/profile/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;             // { success: boolean, data: {...} }
+  },
+};
