@@ -82,19 +82,21 @@ export const dashboardStyles = StyleSheet.create({
     marginBottom: 25,
   },
   videoCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 4,
-    overflow: 'hidden',
+  backgroundColor: '#FFFFFF',
+  borderRadius: 16,
+  marginRight: 15, // 👈 Add this for horizontal spacing
+  width: 280, // 👈 Set a fixed width for horizontal layout
+  shadowColor: '#000',
+  shadowOffset: {
+    width: 0,
+    height: 3,
   },
+  shadowOpacity: 0.1,
+  shadowRadius: 6,
+  elevation: 4,
+  overflow: 'hidden',
+},
+
   videoThumbnail: {
     width: '100%',
     height: 180,

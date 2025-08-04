@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,28 +9,87 @@ import {
   Alert,
   StatusBar,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo';
+import { SignedIn, SignedOut, useUser, useAuth } from '@clerk/clerk-expo';
 import { Link } from 'expo-router';
 import { SignOutButton } from '../../components/SignOutButton';
 import { profileStyles } from '../styles/profile.styles';
+import { profileAPI } from '../utils/axiosApi'; // Import the profile API
 
 export default function Profile() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: user?.fullName || 'John Doe',
-    age: '28',
-    disease: 'Diabetes Type 2',
-    phone: '+1 234 567 8900',
-    email: user?.emailAddresses[0]?.emailAddress || 'john.doe@example.com',
+    name: user?.fullName || '',
+    age: '',
+    disease: '',
+    phone: '',
+    email: user?.emailAddresses[0]?.emailAddress || '',
     avatar: user?.imageUrl || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'
   });
 
-  const handleSave = () => {
-    setIsEditing(false);
-    Alert.alert('Success', 'Profile updated successfully!');
+  // Load profile data when component mounts
+  useEffect(() => {
+    if (user?.id) {
+      loadProfileData();
+    }
+  }, [user?.id]);
+
+  // ────────── loadProfileData ──────────
+const loadProfileData = async () => {
+  try {
+    setLoading(true);
+    const token     = await getToken();
+    const response  = await profileAPI.getProfile(user.id, token);
+
+    if (response.success && response.data) {
+      const db = response.data;
+
+      setProfileData(prev => ({
+        ...prev,
+
+        /* numbers ➜ strings for TextInput */
+        age : db.age !== null && db.age !== undefined ? db.age.toString() : '',
+
+        /* everything else */
+        name  : db.name   || user?.fullName                            || '',
+        email : db.email  || user?.emailAddresses[0]?.emailAddress     || '',
+        avatar: db.avatar || user?.imageUrl                            || prev.avatar,
+        disease: db.disease ?? '',
+        phone  : db.phone   ?? '',
+      }));
+    }
+  } catch (err) {
+    console.error('Error loading profile:', err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      const token = await getToken();
+      
+      const response = await profileAPI.updateProfile(user.id, profileData, token);
+      
+      if (response.success) {
+        setIsEditing(false);
+        Alert.alert('Success', 'Profile updated successfully!');
+      } else {
+        Alert.alert('Error', response.message || 'Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      Alert.alert('Error', 'Failed to save profile. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEditAvatar = () => {
@@ -65,6 +124,15 @@ export default function Profile() {
     </View>
   );
 
+  if (loading && !profileData.name) {
+    return (
+      <SafeAreaView style={[profileStyles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#FF6B6B" />
+        <Text style={{ marginTop: 10, color: '#666' }}>Loading profile...</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={profileStyles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -78,16 +146,24 @@ export default function Profile() {
           {/* Profile Header */}
           <View style={profileStyles.profileHeader}>
             <TouchableOpacity 
-              style={profileStyles.editButton}
+              style={[
+                profileStyles.editButton,
+                loading && { opacity: 0.6 }
+              ]}
               onPress={isEditing ? handleSave : () => setIsEditing(true)}
+              disabled={loading}
             >
-              <Ionicons 
-                name={isEditing ? "checkmark" : "pencil"} 
-                size={16} 
-                color="#FFFFFF" 
-              />
+              {loading ? (
+                <ActivityIndicator size={16} color="#FFFFFF" />
+              ) : (
+                <Ionicons 
+                  name={isEditing ? "checkmark" : "pencil"} 
+                  size={16} 
+                  color="#FFFFFF" 
+                />
+              )}
               <Text style={profileStyles.editButtonText}>
-                {isEditing ? 'Save' : 'Edit'}
+                {loading ? 'Saving...' : (isEditing ? 'Save' : 'Edit')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -98,17 +174,14 @@ export default function Profile() {
               <Image 
                 source={{ 
                   uri: profileData.avatar,
-                  // Default fallback image if the user's avatar fails to load
                   headers: {
                     'User-Agent': 'Mozilla/5.0'
                   }
                 }} 
                 style={profileStyles.avatar}
-                // Use an online default image as fallback
                 defaultSource={{ 
                   uri: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80' 
                 }}
-                // Add error handling for image loading
                 onError={() => {
                   setProfileData(prev => ({
                     ...prev,

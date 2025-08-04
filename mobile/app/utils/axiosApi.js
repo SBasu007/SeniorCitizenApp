@@ -1,15 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = "http://192.168.29.58:3000"; 
+const API_BASE_URL = "http://192.168.31.56:3000"; 
 
 // Create axios instance with default config
-/**
- * this is an axios instance 
- * @param baseurl for fixing url
- * @param timeout for setting a timeout
- * @param headers for setting a default content type
- * @author s-sammm-y
- */
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
@@ -20,12 +13,6 @@ const api = axios.create({
 
 // API functions
 export const authAPI = {
-  // Sign up user with data
-  /**
-   * @param {*} userData gets user data from the api call email,password
-   * @param {*} token gets session token for verifying user
-   * @returns api response
-   */
   signupUser: async (userData, token) => {
     const response = await api.post('/authSignUp/signup', userData, {
       headers: {
@@ -36,4 +23,38 @@ export const authAPI = {
   },
 };
 
-export default api; 
+// Profile API functions
+export const profileAPI = {
+  /**
+   * Update user profile
+   * @param {string} userId - User ID from Clerk
+   * @param {object} profileData - Profile data to update
+   * @param {string} token - Session token for authentication
+   * @returns {Promise} API response
+   */
+  updateProfile: async (userId, profileData, token) => {
+    const response = await api.put(`/profile/update/${userId}`, profileData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+
+  /**
+   * Get user profile
+   * @param {string} userId - User ID from Clerk
+   * @param {string} token - Session token for authentication
+   * @returns {Promise} API response
+   */
+  getProfile: async (userId, token) => {
+    const response = await api.get(`/profile/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+};
+
+export default api;

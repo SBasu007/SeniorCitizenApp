@@ -154,7 +154,7 @@ export default function DashboardScreen() {
         </View>
       </View>
 
-      <ScrollView 
+      <ScrollView
         style={dashboardStyles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
@@ -172,7 +172,14 @@ export default function DashboardScreen() {
                 <Text style={dashboardStyles.viewAllText}>View All</Text>
               </TouchableOpacity>
             </View>
-            {recommendedVideos.map(renderRecommendedVideo)}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingRight: 10 }}
+            >
+              {recommendedVideos.map(renderRecommendedVideo)}
+            </ScrollView>
+
           </View>
 
           {/* Featured Articles */}
