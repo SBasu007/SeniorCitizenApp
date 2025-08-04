@@ -6,7 +6,7 @@ const upload = multer({ dest: 'uploads/' });
 
 router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
     const file = req.file;
-    console.log(file)
+    console.log("success")
 })
 
 export default router;
