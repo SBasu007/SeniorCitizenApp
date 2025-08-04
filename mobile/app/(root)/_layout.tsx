@@ -76,10 +76,24 @@ export default function RootLayout() {
             ),
           }}
         />
-        <Tabs.Screen
+        {/* <Tabs.Screen
           name="services"
           options={{
             title: 'Services',
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons 
+                name={focused ? 'grid' : 'grid-outline'} 
+                size={24} 
+                color={color} 
+              />
+            ),
+          }}
+        /> */}
+        <Tabs.Screen
+          name = "(service)"
+          options={{
+            title: "Services",
+            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <Ionicons 
                 name={focused ? 'grid' : 'grid-outline'} 

@@ -8,7 +8,8 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { servicesStyles } from '../styles/service.style';
+import { router } from 'expo-router';
+import { servicesStyles } from '../../styles/service.style';
 
 interface Service {
   id: string;
@@ -131,13 +132,21 @@ export default function ServicesScreen() {
         </View>
       </View>
       <Text style={servicesStyles.emergencyDescription}>{service.description}</Text>
-      <TouchableOpacity 
+      <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+        <TouchableOpacity 
+          style={servicesStyles.emergencyButton}
+          onPress={() => handleEmergencyCall(service.title)}
+          activeOpacity={0.7}
+        >
+          <Text style={servicesStyles.emergencyButtonText}>Call Now</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
         style={servicesStyles.emergencyButton}
-        onPress={() => handleEmergencyCall(service.title)}
         activeOpacity={0.7}
-      >
-        <Text style={servicesStyles.emergencyButtonText}>Call Now</Text>
-      </TouchableOpacity>
+        onPress={() => router.push('/(root)/(service)/book')}>
+          <Text style={servicesStyles.emergencyButtonText}>Book Now</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 

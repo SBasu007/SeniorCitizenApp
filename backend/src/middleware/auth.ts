@@ -5,7 +5,7 @@ import {createClerkClient} from "@clerk/backend";
  * Extends the Express Request interface to include authenticated user information.
  * This allows TypeScript to recognize the user property added by the authentication middleware.
  */
-interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Request {
     user?: {
         userId: string;
         sessionId: string;

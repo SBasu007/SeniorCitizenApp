@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
-import { useSignUp } from "@clerk/clerk-expo";
+import { useSignUp, useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import { styles } from "../styles/auth.styles.js";
 import { Ionicons } from "@expo/vector-icons";
