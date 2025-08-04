@@ -40,7 +40,7 @@ export default function ChatScreen() {
 
   const loadConversationHistory = async () => {
     try {
-      const response = await fetch(`http://192.168.31.56:3000/ai-chat/history/${user?.id}`);
+      const response = await fetch(`https://seniorcitizenapp.onrender.com//ai-chat/history/${user?.id}`);
       const data = await response.json();
 
       if (data.history) {
@@ -73,7 +73,7 @@ export default function ChatScreen() {
     setIsTyping(true);
 
     try {
-      const response = await fetch('http://192.168.31.56:3000/ai-chat/message', {
+      const response = await fetch('https://seniorcitizenapp.onrender.com/ai-chat/message', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +153,7 @@ export default function ChatScreen() {
           onPress: async () => {
             try {
               // Clear conversation on backend
-              await fetch(`http://192.168.31.56:3000/ai-chat/history/${user?.id}`, {
+              await fetch(`https://seniorcitizenapp.onrender.com/ai-chat/history/${user?.id}`, {
                 method: 'DELETE',
               });
               
