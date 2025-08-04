@@ -40,7 +40,7 @@ export default function ChatScreen() {
 
   const loadConversationHistory = async () => {
     try {
-      const response = await fetch(`https://seniorcitizenapp.onrender.com//ai-chat/history/${user?.id}`);
+      const response = await fetch(`https://seniorcitizenapp.onrender.com/ai-chat/history/${user?.id}`);
       const data = await response.json();
 
       if (data.history) {
@@ -273,12 +273,15 @@ export default function ChatScreen() {
           
           {/* Profile Avatar */}
           <TouchableOpacity
-            style={chatStyles.avatarContainer}
-            onPress={handleAvatarPress}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="person-circle" size={40} color="#DC2626" />
-          </TouchableOpacity>
+  style={chatStyles.avatarContainer}
+  onPress={handleAvatarPress}
+  activeOpacity={0.7}
+>
+  <Text style={chatStyles.avatarText}>
+    {user?.firstName?.charAt(0) ?? "U"}
+  </Text>
+</TouchableOpacity>
+
         </View>
       </View>
 

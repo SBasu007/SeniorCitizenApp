@@ -177,59 +177,6 @@ export const dashboardStyles = StyleSheet.create({
     lineHeight: 18,
   },
 
-  // Popular Videos Section (Horizontal Scroll)
-  popularSection: {
-    marginBottom: 25,
-  },
-  popularVideosList: {
-    paddingLeft: 5,
-  },
-  popularVideoCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    width: 200,
-    marginRight: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    overflow: 'hidden',
-  },
-  popularThumbnail: {
-    width: '100%',
-    height: 120,
-    backgroundColor: '#E8F5E8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  popularPlayButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 107, 107, 0.9)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  popularVideoContent: {
-    padding: 12,
-  },
-  popularVideoTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 6,
-    numberOfLines: 2,
-  },
-  popularVideoMeta: {
-    fontSize: 12,
-    color: '#666',
-  },
-
   // Featured Articles Section
   articlesSection: {
     marginBottom: 30,
@@ -368,4 +315,5 @@ export const dashboardStyles = StyleSheet.create({
     lineHeight: 20,
   },
 });
+
 export default dashboardStyles;

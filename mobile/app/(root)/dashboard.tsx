@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Animated,
   TextInput,
-  FlatList,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { dashboardStyles } from '../styles/dashboard.styles';
@@ -19,13 +18,6 @@ interface RecommendedVideo {
   views: string;
   description: string;
   thumbnail: string;
-}
-
-interface PopularVideo {
-  id: string;
-  title: string;
-  views: string;
-  duration: string;
 }
 
 interface Article {
@@ -61,27 +53,6 @@ export default function DashboardScreen() {
       views: '89K views',
       description: 'Discover effective stress management techniques and their impact on your overall well-being.',
       thumbnail: 'stress_management',
-    },
-  ];
-
-  const popularVideos: PopularVideo[] = [
-    {
-      id: '1',
-      title: 'Yoga for Beginners',
-      views: '2.1M views',
-      duration: '15:20',
-    },
-    {
-      id: '2',
-      title: 'Healthy Eating Habits',
-      views: '1.8M views',
-      duration: '10:45',
-    },
-    {
-      id: '3',
-      title: 'Sleep Better Tonight',
-      views: '1.5M views',
-      duration: '9:30',
     },
   ];
 
@@ -143,24 +114,6 @@ export default function DashboardScreen() {
     </TouchableOpacity>
   );
 
-  const renderPopularVideo = ({ item }: { item: PopularVideo }) => (
-    <TouchableOpacity style={dashboardStyles.popularVideoCard} activeOpacity={0.7}>
-      <View style={dashboardStyles.popularThumbnail}>
-        <Ionicons name="heart" size={24} color="#4CAF50" />
-        <TouchableOpacity style={dashboardStyles.popularPlayButton}>
-          <Ionicons name="play" size={16} color="#FFFFFF" />
-        </TouchableOpacity>
-        <View style={[dashboardStyles.videoDuration, { bottom: 8, right: 8 }]}>
-          <Text style={dashboardStyles.durationText}>{item.duration}</Text>
-        </View>
-      </View>
-      <View style={dashboardStyles.popularVideoContent}>
-        <Text style={dashboardStyles.popularVideoTitle}>{item.title}</Text>
-        <Text style={dashboardStyles.popularVideoMeta}>{item.views}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-
   const renderArticle = (article: Article) => (
     <TouchableOpacity key={article.id} style={dashboardStyles.articleCard} activeOpacity={0.7}>
       <View style={dashboardStyles.articleImage}>
@@ -206,30 +159,7 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Animated.View style={{ opacity: fadeAnim }}>
-          {/* Search Bar */}
-          <View style={dashboardStyles.searchContainer}>
-            <Ionicons name="search" size={20} color="#666" />
-            <TextInput
-              style={dashboardStyles.searchInput}
-              placeholder="Search health topics..."
-              placeholderTextColor="#999"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-          </View>
 
-          {/* Quick Health Tip */}
-          <View style={dashboardStyles.quickTipsSection}>
-            <View style={dashboardStyles.tipHeader}>
-              <View style={dashboardStyles.tipIcon}>
-                <Ionicons name="bulb" size={16} color="#FFFFFF" />
-              </View>
-              <Text style={dashboardStyles.tipTitle}>Daily Health Tip</Text>
-            </View>
-            <Text style={dashboardStyles.tipText}>
-              Stay hydrated! Aim for 8 glasses of water daily to maintain optimal health and energy levels.
-            </Text>
-          </View>
 
           {/* Recommended for You */}
           <View style={dashboardStyles.recommendedSection}>
@@ -243,24 +173,6 @@ export default function DashboardScreen() {
               </TouchableOpacity>
             </View>
             {recommendedVideos.map(renderRecommendedVideo)}
-          </View>
-
-          {/* Popular Videos */}
-          <View style={dashboardStyles.popularSection}>
-            <View style={dashboardStyles.sectionHeader}>
-              <Text style={dashboardStyles.sectionTitle}>Popular Videos</Text>
-              <TouchableOpacity style={dashboardStyles.viewAllButton}>
-                <Text style={dashboardStyles.viewAllText}>View All</Text>
-              </TouchableOpacity>
-            </View>
-            <FlatList
-              data={popularVideos}
-              renderItem={renderPopularVideo}
-              keyExtractor={(item) => item.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={dashboardStyles.popularVideosList}
-            />
           </View>
 
           {/* Featured Articles */}
