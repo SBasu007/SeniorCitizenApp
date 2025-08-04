@@ -1,4 +1,4 @@
-import supabase from "../middleware/supabase";
+import supabase from "../middleware/supabase.js";
 import { Router } from "express";
 const router = Router();
 router.get("/ambulances", async (req, res) => {
