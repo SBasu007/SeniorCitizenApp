@@ -57,6 +57,7 @@ export default function Form() {
         const getAvailableAmbulances = async () => {
             try {
                 const token = await getToken();
+                console.log(token)
                 if (!token) {
                     console.error("No token available");
                     return;

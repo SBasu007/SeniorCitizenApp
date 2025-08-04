@@ -13,7 +13,7 @@ router.get("/ambulances",authenticateUser,async(req:AuthenticatedRequest,res:Res
         if(error){
             return res.status(400).json({message:"Error in database",error:error})
         }
-
+        
         return res.status(200).json({message:"Available ambulances fetched",data:data})
     }catch(err){
         return res.status(500).json({message:"internal server error",error:err})
