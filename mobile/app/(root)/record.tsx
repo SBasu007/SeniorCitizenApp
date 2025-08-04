@@ -10,6 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { recordStyles } from '../styles/record.style';
 import { useUser } from '@clerk/clerk-expo';
+import * as DocumentPicker from 'expo-document-picker';
 
 interface MedicalRecord {
   id: string;
@@ -30,6 +31,37 @@ export default function RecordScreen() {
   const [fadeAnim] = useState(new Animated.Value(0));
   const [slideAnim] = useState(new Animated.Value(50));
   const {user} = useUser()
+
+//pdf handling
+const pickAndUploadPDF = async () => {
+  const result = await DocumentPicker.getDocumentAsync({
+    type: 'application/pdf',
+  });
+
+  if (!result.canceled && result.assets && result.assets.length > 0) {
+    const file = result.assets[0];
+    const { uri, name } = file;
+
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
+    const formData = new FormData();
+    formData.append('pdf', blob, name);
+
+    console.log("Uploading...");
+
+    const res = await fetch('http://localhost:3000/pdf/upload-pdf', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await res.json();
+    console.log('Upload response:', data);
+  }
+};
+
+
+
   if (!user) return <Text>Loading user...</Text>;
   // Sample data
   const medicalRecords: MedicalRecord[] = [
@@ -181,7 +213,7 @@ export default function RecordScreen() {
           <View style={recordStyles.quickActionsSection}>
             <Text style={recordStyles.sectionTitle}>Quick Actions</Text>
             <View style={recordStyles.quickActionsGrid}>
-              {renderQuickAction('document-text-outline', 'Add Record', 'Upload new report', '#4CAF50', () => {})}
+              {renderQuickAction('document-text-outline', 'Add Record', 'Upload new report', '#4CAF50', pickAndUploadPDF)}
               {renderQuickAction('calendar-outline', 'Schedule', 'Book appointment', '#2196F3', () => {})}
               {renderQuickAction('fitness-outline', 'Symptoms', 'Log symptoms', '#FF9800', () => {})}
               {renderQuickAction('medical-outline', 'Medications', 'Track medicines', '#9C27B0', () => {})}
