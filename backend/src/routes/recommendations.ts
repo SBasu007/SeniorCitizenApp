@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import youtubeService, { FormattedVideo } from '../services/youtubeservices';
+import youtubeService, { FormattedVideo } from '../services/youtubeservices.js';
 
 const router = express.Router();
 
