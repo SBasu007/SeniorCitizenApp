@@ -31,7 +31,7 @@ interface FamilyMember {
 export default function RecordScreen() {
   const [fadeAnim] = useState(new Animated.Value(0));
   const [slideAnim] = useState(new Animated.Value(50));
-  const {user} = useUser()
+  const {user} = useUser() 
 
 //pdf handling
 const pickAndUploadPDF = async () => {
@@ -56,6 +56,7 @@ const pickAndUploadPDF = async () => {
 
     const formData = new FormData();
     formData.append('pdf', fileToUpload as any); 
+    formData.append('user_id', user?.id ?? '');
 
     console.log('Uploading...');
 
