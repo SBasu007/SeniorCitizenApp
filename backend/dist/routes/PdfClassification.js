@@ -81,6 +81,8 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
         console.log(rows);
         res.status(200).json({
             message: "Upload and parsing successful",
+            filename: file.originalname,
+            text: textContent
         });
     }
     catch (err) {
