@@ -28,47 +28,67 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
         
         //Summarization
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const prompt =  `You are a smart medical assistant. Carefully analyze the following pdf-extracted medical report and return the output in JSON format with this structure:
-        {
-        "findings_summary": "A short, human-readable summary of key findings",
-        "parameters": {
-            "parameter_name": {
-            "value": "measured_value",
-            "unit": "measurement_unit",
-            "normal_range": "normal_range_if_available_or_from_standard (standard used)",
-            "status": "normal / high / low"
-            // ... more parameters
-        }
-        }
+        const prompt =  `You are a smart and medically aware assistant. Analyze the following text extracted from a medical report and return a JSON object in the following structure:
 
-        Your tasks:
-        1. Correct any spelling or formatting mistakes.
-        2. Identify only the key medical parameters, units, and values.
-        3. Specify the status based on the normal range of the corresponding parameter.
-        4. If the normal range is not present in the input, provide a standard medically accepted normal range and mention it in brackets like this: "70–110 mg/dL (standard)".
-        5. Based on the normal range and value, return a status: normal, high, low, abnormal, or unknown.
-        6. If no valid medical parameters are found, return an empty parameters object.
-        7. For reports such as glucose, please try to mention the type, like for glucose there is Fasting and PP, likewise.
+                            {
+                            "findings_summary": "A brief, human-readable summary of the key medical findings.",
+                            "parameters": {
+                                "parameter_name": {
+                                "value": "measured_value",
+                                "unit": "unit_of_measurement",
+                                "normal_range": "normal_range (mention 'standard' if assumed)",
+                                "status": "normal / high / low "
+                                },
+                                ...
+                            }
+                            }
 
-        Report to analyze:
-        ${textContent}`;
+                            Your task is to:
+                            1. **Correct any spelling or formatting errors** in the extracted text.
+                            2. **Extract key medical parameters** (e.g., glucose, creatinine, hemoglobin), their values, and units.
+                            3. For each parameter, provide:
+                            - The **normal reference range** (use a medically accepted standard if not available in the report and indicate it as such).
+                            - A **status** field indicating whether the value is normal, high, low, or unknown based on the normal range.
+                            4. If a parameter has a **type** (e.g., "Fasting Glucose" vs. "Postprandial Glucose"), include that distinction.
+                            5. If no valid medical parameters are detected, return parameters: {}.
+                            6. Do not include irrelevant values or interpretations; focus strictly on medical parameters and their diagnostics.
+
+                            ### Report:
+                            ${textContent}`;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const outputText = response.text();
 
-        //Insert to supabase
-        // const rows = Object.entries(response).map(([paramName, details]) => ({
-        //     user_id: userId,
-        //     parameter_name: paramName,
-        //     value: details.value,
-        //     unit: details.unit,
-        //     normal_range: details.normal_range,
-        //     status: details.status,
-        //     created_at: "today"
-        // }));
-        console.log(outputText)
+        // Parse outputText to get a proper JS object
+        let parsed;
+        try {
+        parsed = JSON.parse(outputText);
+        } catch (error) {
+        console.error("Failed to parse JSON from model output:", error);
+        return;
+        }
 
+        // Destructure parameters from parsed response
+        const { parameters } = parsed;
+
+        if (!parameters || typeof parameters !== 'object') {
+        console.error("No valid parameters found in parsed output");
+        return;
+        }
+
+        // Construct rows for Supabase
+        const rows = Object.entries(parameters).map(([paramName, details]: [string, any]) => ({
+        user_id: userId,
+        parameter_name: paramName,
+        value: details.value,
+        unit: details.unit,
+        normal_range: details.normal_range,
+        status: details.status,
+        created_at: new Date().toISOString(),
+        }));
+
+        console.log(rows);
 
 
         res.status(200).json({
