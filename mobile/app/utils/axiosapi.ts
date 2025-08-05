@@ -3,7 +3,7 @@ import { ApiResponse } from "./Models/ApiResponse";
 import { AmbulanceResponse } from "./Models/AmbulanceResponse";
 import * as Location from 'expo-location'
 
-const API_BASE_URL = "https://seniorcitizenapp.onrender.com"
+const API_BASE_URL = "http://192.168.31.56:3000"
 
 const api = axios.create({
     baseURL: API_BASE_URL,
