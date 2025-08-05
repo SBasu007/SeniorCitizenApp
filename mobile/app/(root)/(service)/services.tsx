@@ -143,7 +143,10 @@ export default function ServicesScreen() {
         <TouchableOpacity
         style={servicesStyles.emergencyButton}
         activeOpacity={0.7}
-        onPress={() => router.push('/(root)/(service)/ambulance')}>
+        onPress={() => router.push({
+        pathname: '/(root)/(service)/[id]',
+        params: { id: service.id },
+        })}>
           <Text style={servicesStyles.emergencyButtonText}>Book Now</Text>
         </TouchableOpacity>
       </View>

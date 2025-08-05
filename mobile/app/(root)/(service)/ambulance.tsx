@@ -10,7 +10,7 @@ import { ServiceApi } from "@/app/utils/axiosapi";
 import AmbulanceMap from "./ambulanceMap";
 import {ambulanceStyles} from "../../styles/ambulance.style"
 
-export default function ambulanceLoad() {
+export default function AmbulanceLoad() {
     const { getToken } = useAuth();
     const [userlocation, setUserLocation] = useState<Location.LocationObject | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -118,6 +118,7 @@ export default function ambulanceLoad() {
         }
     };
 
+    // call driver using expo linking
     const handleToggleETA = () => {
         setShowTime((prev) => !prev);
     };
