@@ -16,6 +16,13 @@ export default function ServiceLayout() {
                 options={{
                     title: "Booking Ambulance",
                     headerShown: true,
+                    headerStyle: {
+                    backgroundColor: '#FCF3F2', // light background
+                    },
+                    headerTintColor: '#000', // <-- this sets the text and back icon color to black
+                    headerTitleStyle: {
+                    fontWeight: 'bold',
+                    },
                 }}
             />
         </Stack>
