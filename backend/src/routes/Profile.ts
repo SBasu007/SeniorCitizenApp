@@ -1,7 +1,7 @@
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
-import supabase from '../middleware/supabase';
+import supabase from '../middleware/supabase.js';
 
 dotenv.config();
 

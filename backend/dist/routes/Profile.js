@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import supabase from '../middleware/supabase';
+import supabase from '../middleware/supabase.js';
 dotenv.config();
 const router = express.Router();
 // PUT: Update user profile
