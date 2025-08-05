@@ -24,6 +24,8 @@ app.use('/recommendations', recommendationsRoutes);
 //test
 app.get('/ping', (_, res) => res.send('pong'));
 
-app.listen(3000, "0.0.0.0", () => {
-    console.log("Backend working on port 3000");
+
+const port = Number(process.env.PORT) || 3000;
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
