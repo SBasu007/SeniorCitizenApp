@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = "http://192.168.31.56:3000"; 
+const API_BASE_URL = "https://seniorcitizenapp.onrender.com"; 
 
 // Create axios instance with default config
 const api = axios.create({

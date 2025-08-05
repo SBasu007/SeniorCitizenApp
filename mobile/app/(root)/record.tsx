@@ -18,7 +18,8 @@ interface MedicalRecord {
   type: string;
   date: string;
   details: string;
-  status: 'normal' | 'alert' | 'critical';
+  status: 'normal' | 'low' | 'high';
+  file_url: string;
 }
 
 interface FamilyMember {
@@ -31,6 +32,7 @@ interface FamilyMember {
 export default function RecordScreen() {
   const [fadeAnim] = useState(new Animated.Value(0));
   const [slideAnim] = useState(new Animated.Value(50));
+  const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
   const {user} = useUser() 
 
 //pdf handling
@@ -82,34 +84,30 @@ const pickAndUploadPDF = async () => {
     console.error('Error uploading PDF:', error);
   }
 };
+const fetchMedicalRecords = async () => {
+  try {
+    const response = await fetch(`https://seniorcitizenapp.onrender.com/records/${user?.id}`);
+    const data = await response.json();
 
+    const transformed: MedicalRecord[] = data.map((record: any, index: number) => ({
+      id: record.id,
+      type: record.parameter_name,
+      date: record.date,
+      details: `${record.value} ${record.unit}`,
+      status: record.status,
+      file_url:record.file_url,
+    }));
+    setMedicalRecords(transformed);
+  } catch (error) {
+    console.error('Error fetching medical records:', error);
+  }
+};
 
 
   if (!user) return <Text>Loading user...</Text>;
   // Sample data
-  const medicalRecords: MedicalRecord[] = [
-    {
-      id: '1',
-      type: 'Blood Test',
-      date: '2024-08-01',
-      details: 'Complete Blood Count - All parameters normal',
-      status: 'normal',
-    },
-    {
-      id: '2',
-      type: 'X-Ray',
-      date: '2024-07-28',
-      details: 'Chest X-Ray - Clear lungs, no abnormalities',
-      status: 'normal',
-    },
-    {
-      id: '3',
-      type: 'Blood Pressure',
-      date: '2024-08-02',
-      details: '140/90 mmHg - Slightly elevated',
-      status: 'alert',
-    },
-  ];
+
+  
 
   const familyMembers: FamilyMember[] = [
     { id: '1', name: 'Mom', relation: 'Mother' },
@@ -130,16 +128,17 @@ const pickAndUploadPDF = async () => {
         useNativeDriver: true,
       }),
     ]).start();
+    fetchMedicalRecords();
   }, []);
 
   const getStatusStyle = (status: string) => {
     switch (status) {
       case 'normal':
         return recordStyles.statusNormal;
-      case 'alert':
-        return recordStyles.statusAlert;
-      case 'critical':
-        return recordStyles.statusCritical;
+      case 'low':
+        return recordStyles.statusLow;
+      case 'high':
+        return recordStyles.statusHigh;
       default:
         return recordStyles.statusNormal;
     }

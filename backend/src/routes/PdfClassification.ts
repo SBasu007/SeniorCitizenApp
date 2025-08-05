@@ -111,7 +111,7 @@ const fileUrl = publicUrlData?.publicUrl || null;
       unit: details.unit,
       normal_range: details.normal_range,
       status: details.status,
-      file_url: fileUrl
+      file_url: fileUrl,
     }));
 
     //supabase insertion

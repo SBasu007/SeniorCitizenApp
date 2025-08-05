@@ -209,13 +209,13 @@ export const recordStyles = StyleSheet.create({
     backgroundColor: '#E8F5E8',
     color: '#4CAF50',
   },
-  statusAlert: {
+  statusLow: {
     backgroundColor: '#FFF3E0',
     color: '#FF9800',
   },
-  statusCritical: {
-    backgroundColor: '#FFEBEE',
-    color: '#F44336',
+  statusHigh: {
+    backgroundColor: '#FFF3E0',
+    color: '#FF9800',
   },
   viewButton: {
     flexDirection: 'row',

@@ -97,7 +97,7 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
             unit: details.unit,
             normal_range: details.normal_range,
             status: details.status,
-            file_url: fileUrl
+            file_url: fileUrl,
         }));
         //supabase insertion
         const { data: insertData, error: insertError } = await supabase
