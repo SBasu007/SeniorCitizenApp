@@ -54,19 +54,20 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
         ${textContent}`;
 
         const result = await model.generateContent(prompt);
-        const response = result.response;
+        const response = await result.response;
+        const outputText = response.text();
 
         //Insert to supabase
-        const rows = Object.entries(response).map(([paramName, details]) => ({
-            user_id: userId,
-            parameter_name: paramName,
-            value: details.value,
-            unit: details.unit,
-            normal_range: details.normal_range,
-            status: details.status,
-            created_at: "today"
-        }));
-        console.log(rows)
+        // const rows = Object.entries(response).map(([paramName, details]) => ({
+        //     user_id: userId,
+        //     parameter_name: paramName,
+        //     value: details.value,
+        //     unit: details.unit,
+        //     normal_range: details.normal_range,
+        //     status: details.status,
+        //     created_at: "today"
+        // }));
+        console.log(outputText)
 
 
 
