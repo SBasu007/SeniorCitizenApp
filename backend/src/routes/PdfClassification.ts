@@ -52,7 +52,8 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
                             4. If a parameter has a **type** (e.g., "Fasting Glucose" vs. "Postprandial Glucose"), include that distinction.
                             5. If no valid medical parameters are detected, return parameters: {}.
                             6. Do not include irrelevant values or interpretations; focus strictly on medical parameters and their diagnostics.
-
+                            
+                            Return the response as raw JSON without any markdown or code block formatting.
                             ### Report:
                             ${textContent}`;
 
@@ -85,7 +86,7 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
         unit: details.unit,
         normal_range: details.normal_range,
         status: details.status,
-        created_at: new Date().toISOString(),
+        created_at: new Date().toISOString(), 
         }));
 
         console.log(rows);
