@@ -12,10 +12,10 @@ export default function ServiceLayout() {
                 }}
             />
             <Stack.Screen
-                name="book"
+                name="ambulance"
                 options={{
-                    title: "book",
-                    headerShown: false,
+                    title: "Booking Ambulance",
+                    headerShown: true,
                 }}
             />
         </Stack>
