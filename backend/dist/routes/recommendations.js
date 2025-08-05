@@ -1,5 +1,5 @@
 import express from 'express';
-import youtubeService from '../services/youtubeservices';
+import youtubeService from '../services/youtubeservices.js';
 const router = express.Router();
 // This will be accessible at GET /recommendations/videos/general
 router.get('/videos/general', async (req, res) => {
