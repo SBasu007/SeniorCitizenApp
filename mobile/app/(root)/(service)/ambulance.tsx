@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Platform, View, Text, SafeAreaView, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { Platform, View, Text, SafeAreaView, ScrollView, TouchableOpacity, Alert,Animated } from "react-native";
 import * as Location from 'expo-location';
+import * as Linking from 'expo-linking';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from "@clerk/clerk-expo";
@@ -18,7 +19,9 @@ export default function ambulanceLoad() {
     const [loadingAmbulances, setLoadingAmbulances] = useState<Boolean>(true);
     const [loadingActiveAmbulance,setLoadingActiveAmbulance] = useState<Boolean>(true)
     const [activeAmbulanceDetails,setActiveAmbulance] = useState<Ambulance | null>(null);
-    
+    const [showTime, setShowTime] = useState(false);
+    const pulseAnim = useRef(new Animated.Value(1)).current;
+
     const mapRef = useRef<MapView>(null);
     // Hardcoded ambulance location (nearby to user)
     const ambulanceLocation = {
@@ -27,6 +30,9 @@ export default function ambulanceLoad() {
         title: "Ambulance Station",
         description: "Nearest ambulance available"
     };
+    /**
+     * Gets user location and Available ambulances
+     */
     useEffect(() => {
         const getCurrentLocation = async () => {
             setLoadingLocation(true);
@@ -98,6 +104,9 @@ export default function ambulanceLoad() {
     }, [loadingLocation, loadingAmbulances, ambulances, userlocation]);
 
 
+    /**
+     * Centers map on user
+     */
     const centerOnUser = () => {
         if (userlocation && mapRef.current) {
             mapRef.current.animateToRegion({
@@ -109,32 +118,13 @@ export default function ambulanceLoad() {
         }
     };
 
-    // Calculate distance between user and ambulance
-    // const calculateDistance = () => {
-    //     if (!userlocation) return null;
-        
-    //     const R = 6371; // Earth's radius in kilometers
-    //     const lat1 = userlocation.coords.latitude;
-    //     const lon1 = userlocation.coords.longitude;
-    //     const lat2 = ambulanceLocation.latitude;
-    //     const lon2 = ambulanceLocation.longitude;
-        
-    //     const dLat = (lat2 - lat1) * Math.PI / 180;
-    //     const dLon = (lon2 - lon1) * Math.PI / 180;
-        
-    //     const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-    //               Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    //               Math.sin(dLon/2) * Math.sin(dLon/2);
-        
-    //     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    //     const distance = R * c;
-        
-    //     return distance.toFixed(1);
-    // };
+    const handleToggleETA = () => {
+        setShowTime((prev) => !prev);
+    };
 
     // Function to fit map to show both user and ambulance
     const fitMapToShowBoth = () => {
-        if (!userlocation || !mapRef.current) return;
+        if (!userlocation || !mapRef.current || !activeAmbulanceDetails) return;
         
         const coordinates = [
             {
@@ -142,8 +132,8 @@ export default function ambulanceLoad() {
                 longitude: userlocation.coords.longitude,
             },
             {
-                latitude: ambulanceLocation.latitude,
-                longitude: ambulanceLocation.longitude,
+                latitude: activeAmbulanceDetails.latitude,
+                longitude: activeAmbulanceDetails.longitude,
             },
         ];
         
@@ -161,19 +151,70 @@ export default function ambulanceLoad() {
             }, 1000);
         }
     }, [userlocation]);
+
+    /**
+     * handles call to ambulance driver
+     */
+    const handlCallDriver=()=>{
+        if(activeAmbulanceDetails?.phone_number){
+            const phoneNumber = `tel:${activeAmbulanceDetails.phone_number}`;
+            Linking.openURL(phoneNumber);
+        }else{
+            Alert.alert("Phone number unavailable","Cannot place the call");
+        }
+    }
+    
+    /**
+     * animation use effect
+     */
+
+    useEffect(() => {
+    // Pulsing animation for "Waiting for driver..."
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.2,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+
+
     if (loadingLocation || loadingAmbulances || !userlocation || loadingActiveAmbulance) {
     return (
-        <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ fontSize: 18, marginBottom: 10 }}>Getting your Ambulance ready</Text>
+      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
+          🚨 Getting your Ambulance ready
+        </Text>
 
-        {loadingLocation && <Text>Getting your location...</Text>}
-        {loadingAmbulances && <Text>Getting available ambulances...</Text>}
-
-        {!loadingLocation && !loadingAmbulances && loadingActiveAmbulance && (
-            <Text>Waiting for driver...</Text>
+        {loadingLocation && (
+          <Text style={{ fontWeight: "bold", fontSize: 16 }}>📍 Getting your location...</Text>
+        )}
+        {loadingAmbulances && (
+          <Text style={{ fontWeight: "bold", fontSize: 16 }}>🚑 Getting available ambulances...</Text>
         )}
 
-        </SafeAreaView>
+        {!loadingLocation && !loadingAmbulances && loadingActiveAmbulance && (
+          <Animated.Text
+            style={{
+              fontWeight: "bold",
+              fontSize: 16,
+              transform: [{ scale: pulseAnim }],
+              marginTop: 10,
+            }}
+          >
+            ⏳ Waiting for driver...
+          </Animated.Text>
+        )}
+      </SafeAreaView>
     );
     }
 
@@ -182,32 +223,30 @@ return (
     <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }}>
 
       <View style={{ marginBottom: 20 }}>
-
-        {/* <View style={ambulanceStyles.bookedAmbulanceCard}>
-            <Text style={{color:'white',fontSize:20,textDecorationStyle:'solid'}}>
-                Your Location:
-            </Text>
-            <Text style={ambulanceStyles.bookedAmbulanceCardText}>Latitude: {userlocation.coords.latitude}</Text>
-            <Text style={ambulanceStyles.bookedAmbulanceCardText}>Longitude: {userlocation.coords.longitude}</Text>
-            <Text style={ambulanceStyles.bookedAmbulanceCardText}>Accuracy: {userlocation.coords.accuracy} meters</Text>
-        </View> */}
-
         {activeAmbulanceDetails && (
         <View style={ambulanceStyles.bookedAmbulanceCard}>
-            <Text style={{ color: 'white', fontSize: 20, textDecorationStyle: 'solid' }}>
-            🚑 Booked Ambulance
+            <Text style={{ color: 'white', fontSize: 20, textDecorationStyle: 'solid',fontWeight:'bold' }}>
+                🚑 Ambulance on the way
             </Text>
+
             <Text style={ambulanceStyles.bookedAmbulanceCardText}>
-            Driver: {activeAmbulanceDetails.first_name} {activeAmbulanceDetails.last_name}
+                <Text style={{ fontWeight: 'bold' }}>Driver Name: </Text>
+                {activeAmbulanceDetails.first_name} {activeAmbulanceDetails.last_name}
             </Text>
+
             <Text style={ambulanceStyles.bookedAmbulanceCardText}>
-            Phone: {activeAmbulanceDetails.phone_number}
+                <Text style={{ fontWeight: 'bold' }}>Driver Contact: </Text>
+                {activeAmbulanceDetails.phone_number}
             </Text>
+
             <Text style={ambulanceStyles.bookedAmbulanceCardText}>
-            Plate: {activeAmbulanceDetails.license_plate}
+                <Text style={{ fontWeight: 'bold' }}>Ambulance Number: </Text>
+                {activeAmbulanceDetails.license_plate}
             </Text>
+
             <Text style={ambulanceStyles.bookedAmbulanceCardText}>
-            Location: {ambulanceLocation.title}
+                <Text style={{ fontWeight: 'bold' }}>Ambulance Location: </Text>
+                {ambulanceLocation.title}
             </Text>
         </View>
         )}
@@ -222,13 +261,34 @@ return (
         onCenter={centerOnUser}
         onFit={fitMapToShowBoth}
       />
-
-      <View style={{ marginBottom: 20 }}>
-        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>
-          Service Details
+      {/* addition section */}
+      <View style={ambulanceStyles.additionalSection}>
+        <Text style={ambulanceStyles.additionalSectionTitle}>
+            Shortcuts
         </Text>
-        <Text>Additional content can go here...</Text>
-      </View>
+
+        <View style={ambulanceStyles.additionalGrid}>
+  {/* Call Driver Card */}
+        <TouchableOpacity onPress={handlCallDriver} style={ambulanceStyles.additionalCard}>
+            <View style={ambulanceStyles.cardRow}>
+            <Ionicons name="call" size={20} color="#FF6B6B" style={{ marginRight: 6 }} />
+            <Text style={ambulanceStyles.additionalCardText}>Call Driver</Text>
+            </View>
+        </TouchableOpacity>
+
+        {/* Estimated Time Card */}
+        <TouchableOpacity onPress={handleToggleETA} style={ambulanceStyles.additionalCard}>
+            <View style={ambulanceStyles.cardRow}>
+                <Ionicons name="time-outline" size={20} color="#FF6B6B" style={{ marginRight: 6 }} />
+                <Text style={ambulanceStyles.additionalCardText}>
+                {showTime ? "10 mins" : "ETA"}
+                </Text>
+            </View>
+        </TouchableOpacity>
+</View>
+        </View>
+
+
     </ScrollView>
   </SafeAreaView>
 );

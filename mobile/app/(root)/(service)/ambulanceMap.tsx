@@ -3,7 +3,7 @@ import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity, View } from "react-native";
 import { LocationObject } from "expo-location";
-
+import { ambulanceStyles } from "@/app/styles/ambulance.style";
 interface Props {
     userlocation: LocationObject;
     ambulanceLocation: {
@@ -19,10 +19,10 @@ interface Props {
 
 const AmbulanceMap: React.FC<Props> = ({ userlocation, ambulanceLocation, mapRef, onCenter, onFit }) => {
     return (
-        <View style={{ height: 300, marginTop: 20, marginBottom: 20, position: "relative" }}>
+        <View style={ambulanceStyles.mapContainer}>
             <MapView
                 ref={mapRef}
-                style={{ width: "100%", height: "100%" }}
+                style={ambulanceStyles.map}
                 provider={PROVIDER_GOOGLE}
                 initialRegion={{
                     latitude: userlocation.coords.latitude,
