@@ -316,6 +316,13 @@ export const dashboardStyles = StyleSheet.create({
     color: '#388E3C',
     lineHeight: 20,
   },
+  diseaseText: {
+  fontSize: 12,
+  color: '#666',
+  fontStyle: 'italic',
+  marginTop: 2,
+},
+
 });
 
 export default dashboardStyles;
