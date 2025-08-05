@@ -4,6 +4,7 @@ import pdfParse from 'pdf-parse';
 import fs from 'fs';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
+import supabase from "../middleware/supabase.js";
 
 dotenv.config();
 const router = express.Router();
@@ -11,24 +12,22 @@ const upload = multer({ dest: 'uploads/' });
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
-    const file = req.file;
-    const userId = req.body.user_id;
+  const file = req.file;
+  const userId = req.body.user_id;
 
-    if (!file) {
-        return res.status(400).json({ error: "No file received" });
-    }
+  if (!file) {
+    return res.status(400).json({ error: "No file received" });
+  }
 
-    try {
-        console.log("Received PDF:", file.originalname);
+  try {
+    console.log("Received PDF:", file.originalname);
 
-        // Read and parse the uploaded PDF
-        const dataBuffer = fs.readFileSync(file.path);
-        const pdfData = await pdfParse(dataBuffer);
-        const textContent = pdfData.text;
-        
-        //Summarization
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const prompt =  `You are a smart and medically aware assistant. Analyze the following text extracted from a medical report and return a JSON object in the following structure:
+    const dataBuffer = fs.readFileSync(file.path);
+    const pdfData = await pdfParse(dataBuffer);
+    const textContent = pdfData.text;
+
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const prompt = `You are a smart and medically aware assistant. Analyze the following text extracted from a medical report and return a JSON object in the following structure:
 
                             {
                             "findings_summary": "A brief, human-readable summary of the key medical findings.",
@@ -57,48 +56,83 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
                             ### Report:
                             ${textContent}`;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const outputText = response.text();
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const outputText = response.text();
 
-        // Parse outputText to get a proper JS object
-        let parsed;
-        try {
-        parsed = JSON.parse(outputText);
-        } catch (error) {
-        console.error("Failed to parse JSON from model output:", error);
-        return;
-        }
-
-        // Destructure parameters from parsed response
-        const { parameters } = parsed;
-
-        if (!parameters || typeof parameters !== 'object') {
-        console.error("No valid parameters found in parsed output");
-        return;
-        }
-
-        // Construct rows for Supabase
-        const rows = Object.entries(parameters).map(([paramName, details]: [string, any]) => ({
-        user_id: userId,
-        parameter_name: paramName,
-        value: details.value,
-        unit: details.unit,
-        normal_range: details.normal_range,
-        status: details.status,
-        created_at: new Date().toISOString(), 
-        }));
-
-        console.log(rows);
-
-
-        res.status(200).json({
-            message: "Upload and parsing successful",
-        });
-    } catch (err) {
-        console.error("Error parsing PDF:", err);
-        res.status(500).json({ error: "Server error while parsing PDF." });
+    let parsed;
+    try {
+      parsed = JSON.parse(outputText);
+    } catch (error) {
+      console.error("Failed to parse JSON from model output:", error);
+      return res.status(500).json({ error: "Model returned invalid JSON." });
     }
+
+    const { parameters } = parsed;
+
+    if (!parameters || typeof parameters !== 'object' || Object.keys(parameters).length === 0) {
+      console.error("No valid parameters found in parsed output");
+      return res.status(500).json({ error: "Not a medical report." });
+    }
+     // Create a unique filename
+const fileName = `${Date.now()}-${file.originalname}`;
+const filePath = `pdfs/${fileName}`; 
+
+// Upload to Supabase bucket
+const { data: storageData, error: storageError } = await supabase
+  .storage
+  .from('report-pdf') // your bucket name
+  .upload(filePath, fs.readFileSync(file.path), {
+    contentType: 'application/pdf',
+    upsert: false,
+  });
+
+if (storageError) {
+  console.error("Failed to upload PDF to Supabase Storage:", storageError);
+  return res.status(500).json({ error: "Failed to upload file to storage." });
+}
+// Construct public URL 
+const { data: publicUrlData } = supabase
+  .storage
+  .from('report-pdf')
+  .getPublicUrl(filePath);
+
+const fileUrl = publicUrlData?.publicUrl || null;
+
+    // Delete uploaded file to clean up
+    fs.unlinkSync(file.path);
+
+    /* This code snippet is mapping over the entries of the `parameters` object and transforming each
+    entry into a new object structure. Here's a breakdown of what it's doing: */
+    const rows = Object.entries(parameters).map(([paramName, details]: [string, any]) => ({
+      user_id: userId,
+      parameter_name: paramName,
+      value: details.value,
+      unit: details.unit,
+      normal_range: details.normal_range,
+      status: details.status,
+      file_url: fileUrl
+    }));
+
+    //supabase insertion
+    const { data: insertData, error: insertError } = await supabase
+  .from('health_parameters')  
+  .insert(rows);
+
+if (insertError) {
+  console.error("Failed to insert rows into Supabase:", insertError);
+  return res.status(500).json({ error: "Failed to save medical data to database." });
+}
+
+    return res.status(200).json({
+      message: "Upload and parsing successful",
+    });
+  } catch (err) {
+    console.error("Error parsing PDF:", err);
+    if (!res.headersSent) {
+      return res.status(500).json({ error: "Server error while parsing PDF." });
+    }
+  }
 });
 
 export default router;

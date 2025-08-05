@@ -6,7 +6,7 @@ import chat from './routes/Chat.js';
 import availableAmbulances from './routes/Ambulance.js';
 import pdfHandle from './routes/PdfClassification.js';
 import profile from './routes/Profile.js'; // Add this import
-import recommendationsRoutes from './routes/recommendations';
+import recommendationsRoutes from './routes/recommendations.js';
 dotenv.config();
 const app = express();
 app.use(cors());

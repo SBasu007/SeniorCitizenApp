@@ -71,7 +71,7 @@ const pickAndUploadPDF = async () => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Upload failed:', errorText);
-      Alert.alert('Upload failed');
+      Alert.alert(errorText);
       return;
     }
 
