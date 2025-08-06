@@ -8,7 +8,7 @@ export default function ServiceBookingPage() {
   const { id } = useLocalSearchParams();
 
   if (id === 'ambulance') {
-    return <AmbulanceLoad/>;
+    return <AmbulanceLoad />;
   }
 
   if (id === 'hearse') {
