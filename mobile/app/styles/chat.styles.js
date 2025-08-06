@@ -35,6 +35,20 @@ export const chatStyles = StyleSheet.create({
     marginTop: 2,
   },
 
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+
+  newChatButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
   avatarContainer: {
     width: 40,
     height: 40,
@@ -101,6 +115,29 @@ export const chatStyles = StyleSheet.create({
     borderWidth: 2,
   },
 
+  fileAnalysisMessage: {
+    backgroundColor: '#F0FDF4',
+    borderColor: '#059669',
+    borderWidth: 1,
+  },
+
+  // File analysis styles
+  fileAnalysisHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#D1FAE5',
+  },
+
+  fileAnalysisTitle: {
+    marginLeft: 6,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#059669',
+  },
+
   messageText: {
     fontSize: 16,
     lineHeight: 20,
@@ -122,14 +159,17 @@ export const chatStyles = StyleSheet.create({
 
   // Typing Indicator
   typingIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 12,
-    alignItems: 'flex-start',
+    alignSelf: 'flex-start',
   },
 
   typingText: {
     fontSize: 14,
     color: '#666',
     fontStyle: 'italic',
+    marginLeft: 8,
   },
 
   // Welcome Screen
@@ -172,6 +212,28 @@ export const chatStyles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+
+  // Welcome screen examples
+  welcomeExamples: {
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+
+  examplesTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+
+  exampleText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 6,
+    textAlign: 'center',
   },
 
   // Input Area
@@ -325,21 +387,6 @@ export const chatStyles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
   },
-  // Add these to your existing chatStyles object
-
-headerActions: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 12,
-},
-
-newChatButton: {
-  padding: 8,
-  borderRadius: 20,
-  backgroundColor: '#F3F4F6',
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-
 });
+
 export default chatStyles;
