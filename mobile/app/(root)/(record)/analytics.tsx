@@ -24,7 +24,6 @@ export default function Analytics() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchParameters();
   }, []);
@@ -46,7 +45,7 @@ export default function Analytics() {
                 key={index}
                 style={[styles.paramButton, { backgroundColor: '#c52727' }]}
               >
-                <Text style={styles.paramText}>{param.name}</Text>
+                <Text style={styles.paramText}>{param.parameter_name}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>

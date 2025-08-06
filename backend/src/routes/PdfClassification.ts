@@ -130,6 +130,7 @@ const fileUrl = publicUrlData?.publicUrl || null;
       unit: details.unit,
       normal_range: details.normal_range,
       status: details.status,
+      user_id: userId,
     }));
     //supabase insertion of parameters
     const { data: insertData, error: insertError } = await supabase
