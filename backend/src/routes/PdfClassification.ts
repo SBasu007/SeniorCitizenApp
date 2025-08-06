@@ -124,7 +124,6 @@ const fileUrl = publicUrlData?.publicUrl || null;
 
   //construct the row insert
   const rows = Object.entries(parameters).map(([paramName, details]: [string, any]) => ({
-      
       record_id:record_id,
       parameter_name: paramName,
       value: details.value,
@@ -132,7 +131,6 @@ const fileUrl = publicUrlData?.publicUrl || null;
       normal_range: details.normal_range,
       status: details.status,
     }));
-
     //supabase insertion of parameters
     const { data: insertData, error: insertError } = await supabase
   .from('health_parameters')  
@@ -140,7 +138,7 @@ const fileUrl = publicUrlData?.publicUrl || null;
 
 if (insertError) {
   console.error("Failed to insert rows into Supabase:", insertError);
-  return res.status(500).json({ error: "Failed to save medical data to database." });
+  return res.status(500).json({ error: insertError });
 }
 
     return res.status(200).json({

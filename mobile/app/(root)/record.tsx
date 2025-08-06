@@ -89,15 +89,17 @@ const fetchMedicalRecords = async () => {
   try {
     const response = await fetch(`https://seniorcitizenapp.onrender.com/records/${user?.id}`);
     const data = await response.json();
-
-    const transformed: MedicalRecord[] = data.map((record: any, index: number) => ({
-      id: record.id,
-      type: record.filename,
-      date: (record.created_at).split("T")[0],
-      details: record.summary,
-      file_url:record.file_url,
-    }));
-    setMedicalRecords(transformed);
+    
+    if (Array.isArray(data) && data.length > 0) {
+      const transformed: MedicalRecord[] = data.map((record: any) => ({
+        id: record.id,
+        type: record.filename,
+        date: record.created_at.split("T")[0],
+        details: record.summary,
+        file_url: record.file_url,
+      }));
+      setMedicalRecords(transformed);
+    } 
   } catch (error) {
     console.error('Error fetching medical records:', error);
   }

@@ -119,7 +119,7 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
             .insert(rows);
         if (insertError) {
             console.error("Failed to insert rows into Supabase:", insertError);
-            return res.status(500).json({ error: "Failed to save medical data to database." });
+            return res.status(500).json({ error: insertError });
         }
         return res.status(200).json({
             message: "Upload and parsing successful",
