@@ -82,4 +82,88 @@ router.get('/:userId', async (req, res) => {
         });
     }
 });
+//get relations
+router.get('/relative/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { data, error } = await supabase
+            .rpc('get_relatives_by_user', { user_id_input: userId });
+        if (error) {
+            console.error('Supabase RPC error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to fetch relatives',
+                error: error.message
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: data || []
+        });
+    }
+    catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error instanceof Error ? error.message : 'Unknown error occurred',
+        });
+    }
+});
+//post a new member
+router.post('/addRelative', async (req, res) => {
+    try {
+        const { userId, access_token, relation } = req.body;
+        if (!userId || !access_token || !relation) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing userId, access_token, or relation',
+            });
+        }
+        // Step 1: Check if a profile with this token exists
+        const { data: profileData, error: profileError } = await supabase
+            .from('profile')
+            .select('user_id')
+            .eq('access_token', access_token)
+            .single();
+        if (profileError) {
+            return res.status(404).json({
+                success: false,
+                message: 'No user found with the given access token',
+                error: profileError.message,
+            });
+        }
+        const relative_user_id = profileData.user_id;
+        // Step 2: Insert into relations
+        const { data: insertData, error: insertError } = await supabase
+            .from('relations')
+            .insert([
+            {
+                user_id: userId,
+                relative_user_id,
+                relation,
+            }
+        ])
+            .select();
+        if (insertError) {
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to insert relation',
+                error: insertError.message,
+            });
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Relation added successfully',
+            data: insertData[0],
+        });
+    }
+    catch (er) {
+        console.error('Server error:', er);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+});
 export default router;
