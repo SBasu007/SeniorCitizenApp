@@ -8,7 +8,7 @@ import { useAuth } from "@clerk/clerk-expo";
 import { Ambulance } from "@/app/utils/Models/AmbulanceResponse";
 import { ServiceApi } from "@/app/utils/axiosapi";
 import AmbulanceMap from "./ambulanceMap";
-import {ambulanceStyles} from "../../styles/ambulance.style"
+import {ambulanceStyles} from "../../../styles/ambulance.style"
 
 export default function AmbulanceLoad() {
     const { getToken } = useAuth();

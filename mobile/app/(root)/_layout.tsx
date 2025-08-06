@@ -93,7 +93,7 @@ export default function RootLayout() {
           name = "(service)"
           options={{
             title: "Services",
-            headerShown: false,
+            //headerShown: true,
             tabBarIcon: ({ color, focused }) => (
               <Ionicons 
                 name={focused ? 'grid' : 'grid-outline'} 

@@ -144,7 +144,7 @@ export default function ServicesScreen() {
         style={servicesStyles.emergencyButton}
         activeOpacity={0.7}
         onPress={() => router.push({
-        pathname: '/(root)/(service)/[id]',
+        pathname: '/(root)/(service)/emergency/[id]',
         params: { id: service.id },
         })}>
           <Text style={servicesStyles.emergencyButtonText}>Book Now</Text>
@@ -168,7 +168,10 @@ export default function ServicesScreen() {
       <Text style={servicesStyles.servicePrice}>{service.price}</Text>
       <TouchableOpacity 
         style={servicesStyles.bookButton}
-        onPress={() => handleBookService(service.title)}
+        onPress={()=>router.push({
+          pathname:'/(root)/(service)/regular/[id]',
+          params:{id:service.id}
+        })}
         activeOpacity={0.7}
       >
         <Text style={servicesStyles.bookButtonText}>Book Now</Text>
