@@ -17,6 +17,7 @@ import { Link } from 'expo-router';
 import { SignOutButton } from '../../components/SignOutButton';
 import { profileStyles } from '../styles/profile.styles';
 import { profileAPI } from '../utils/axiosApi'; // Import the profile API
+import * as Clipboard from 'expo-clipboard';
 
 export default function Profile() {
   const { user } = useUser();
@@ -61,6 +62,7 @@ const loadProfileData = async () => {
         avatar: db.avatar || user?.imageUrl                            || prev.avatar,
         disease: db.disease ?? '',
         phone  : db.phone   ?? '',
+        access_token: db.access_token ?? '',
       }));
     }
   } catch (err) {
@@ -104,25 +106,37 @@ const loadProfileData = async () => {
     );
   };
 
-  const renderProfileField = (label, value, field, icon, editable = true) => (
-    <View style={profileStyles.fieldContainer}>
-      <Text style={profileStyles.fieldLabel}>{label}</Text>
-      <View style={profileStyles.inputContainer}>
-        <Ionicons name={icon} size={20} color="#666" style={profileStyles.fieldIcon} />
-        <TextInput
-          style={[
-            profileStyles.fieldInput,
-            !editable && profileStyles.disabledInput
-          ]}
-          value={value}
-          onChangeText={(text) => setProfileData({ ...profileData, [field]: text })}
-          editable={isEditing && editable}
-          placeholder={`Enter ${label.toLowerCase()}`}
-          placeholderTextColor="#999"
-        />
-      </View>
+  const renderProfileField = (label, value, field, icon, editable = true, copyable = false) => (
+  <View style={profileStyles.fieldContainer}>
+    <Text style={profileStyles.fieldLabel}>{label}</Text>
+    <View style={profileStyles.inputContainer}>
+      <Ionicons name={icon} size={20} color="#666" style={profileStyles.fieldIcon} />
+      <TextInput
+        style={[
+          profileStyles.fieldInput,
+          !editable && profileStyles.disabledInput
+        ]}
+        value={value}
+        onChangeText={(text) => setProfileData({ ...profileData, [field]: text })}
+        editable={isEditing && editable}
+        placeholder={`Enter ${label.toLowerCase()}`}
+        placeholderTextColor="#999"
+        secureTextEntry={label.toLowerCase().includes('token')}
+      />
+      {copyable && !isEditing && (
+        <TouchableOpacity
+          onPress={() => {
+            Clipboard.setStringAsync(value);
+            Alert.alert('Copied', `${label} copied to clipboard`);
+          }}
+          style={{ paddingHorizontal: 8 }}
+        >
+          <Ionicons name="copy-outline" size={20} color="#007AFF" />
+        </TouchableOpacity>
+      )}
     </View>
-  );
+  </View>
+);
 
   if (loading && !profileData.name) {
     return (
@@ -217,6 +231,7 @@ const loadProfileData = async () => {
             
             {renderProfileField('Phone Number', profileData.phone, 'phone', 'call-outline')}
             {renderProfileField('Email Address', profileData.email, 'email', 'mail-outline', false)}
+            {renderProfileField('Access Token', profileData.access_token, 'access_token', 'key-outline', false, true)}
           </View>
 
           {/* Health Stats */}

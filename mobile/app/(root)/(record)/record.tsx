@@ -247,7 +247,7 @@ const fetchMedicalRecords = async () => {
             <View style={recordStyles.quickActionsGrid}>
               {renderQuickAction('document-text-outline', 'Add Record', 'Upload new report', '#4CAF50', pickAndUploadPDF)}
               {renderQuickAction('calendar-outline', 'Schedule', 'Book appointment', '#2196F3', () => {})}
-              {renderQuickAction('fitness-outline', 'Symptoms', 'Log symptoms', '#FF9800', () => router.push({
+              {renderQuickAction('stats-chart', 'Analytics', 'Show Records', '#FF9800', () => router.push({
     pathname: '/(root)/(record)/analytics',
     params: { userId: user?.id } 
   }))}
