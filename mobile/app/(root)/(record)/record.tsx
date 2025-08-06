@@ -14,7 +14,7 @@ import { useUser } from '@clerk/clerk-expo';
 import { router, useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { Linking } from 'react-native';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator,Modal, TextInput, Button } from 'react-native';
 
 interface MedicalRecord {
   id: string;
@@ -25,7 +25,7 @@ interface MedicalRecord {
 }
 
 interface FamilyMember {
-  id: string;
+  relative_user_id: string;
   name: string;
   relation: string;
   avatar?: string;
@@ -35,7 +35,11 @@ export default function RecordScreen() {
   const [fadeAnim] = useState(new Animated.Value(0));
   const [slideAnim] = useState(new Animated.Value(50));
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
+  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [accessToken, setAccessToken] = useState('');
+  const [relation, setRelation] = useState('');
   const {user} = useUser() 
   const router = useRouter();
 
@@ -93,6 +97,7 @@ const pickAndUploadPDF = async () => {
     console.error('Error uploading PDF:', error);
   }
 };
+//fetch pdfs
 const fetchMedicalRecords = async () => {
   try {
     const response = await fetch(`https://seniorcitizenapp.onrender.com/records/${user?.id}`);
@@ -112,15 +117,71 @@ const fetchMedicalRecords = async () => {
     console.error('Error fetching medical records:', error);
   }
 };
+//fetch relatives
+const fetchRelatives = async () => {
+  try {
+    const response = await fetch(`https://seniorcitizenapp.onrender.com/profile/relative/${user?.id}`);
+    const json = await response.json();
+
+    if (!json.success) {
+      console.error('Failed to fetch relatives:', json.message);
+      return;
+    }
+
+    const relatives: FamilyMember[] = json.data.map((item: any) => ({
+      relative_user_id: item.relative_user_id,
+      name: item.name || 'Unknown',
+      relation: item.relation || 'Relative',
+      avatar: item.avatar || '', // optional
+    }));
+
+    setFamilyMembers(relatives);
+  } catch (error) {
+    console.error('Error fetching relatives:', error);
+  }
+};
+const handleAddRelative = async () => {
+  if (!accessToken || !relation) {
+    Alert.alert('Error', 'Please fill all fields');
+    return;
+  }
+
+  try {
+    const res = await fetch('https://seniorcitizenapp.onrender.com/profile/addRelative', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId:user?.id,           // silently passed
+        access_token: accessToken,
+        relation,
+      }),
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      Alert.alert('Success', 'Relative added successfully');
+      setShowPopup(false);
+      setAccessToken('');
+      setRelation('');
+      fetchRelatives()
+    } else {
+      Alert.alert('Failed', result.message || 'Could not add relative');
+    }
+  } catch (err) {
+    console.error('Error adding relative:', err);
+    Alert.alert('Error', 'Something went wrong');
+  }
+};
 
 
   if (!user) return <Text>Loading user...</Text>;
  
-  const familyMembers: FamilyMember[] = [
-    { id: '1', name: 'Mom', relation: 'Mother' },
-    { id: '2', name: 'Dad', relation: 'Father' },
-    { id: '3', name: 'Sister', relation: 'Sister' },
-  ];
+  // const familyMembers: FamilyMember[] = [
+  //   { relaid: '1', name: 'Mom', relation: 'Mother' },
+  //   { id: '2', name: 'Dad', relation: 'Father' },
+  //   { id: '3', name: 'Sister', relation: 'Sister' },
+  // ];
 
   useEffect(() => {
     Animated.parallel([
@@ -136,6 +197,7 @@ const fetchMedicalRecords = async () => {
       }),
     ]).start();
     fetchMedicalRecords();
+    fetchRelatives();
   }, []);
 
   const getStatusStyle = (status: string) => {
@@ -183,16 +245,16 @@ const fetchMedicalRecords = async () => {
     </View>
   );
 
-  const renderFamilyMember = (member: FamilyMember) => (
-    <TouchableOpacity key={member.id} style={recordStyles.familyMember}>
-      <View style={recordStyles.familyMemberImage}>
-        <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>
-          {member.name.charAt(0)}
-        </Text>
-      </View>
-      <Text style={recordStyles.familyMemberName}>{member.name}</Text>
-    </TouchableOpacity>
-  );
+const renderFamilyMember = (member: FamilyMember) => (
+  <TouchableOpacity key={member.relative_user_id} style={recordStyles.familyMember}>
+    <View style={recordStyles.familyMemberImage}>
+      <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>
+        {member.name.charAt(0)}
+      </Text>
+    </View>
+    <Text style={recordStyles.familyMemberName}>{member.relation}</Text>
+  </TouchableOpacity>
+);
 
   return (
     <View style={recordStyles.container}>
@@ -282,8 +344,10 @@ const fetchMedicalRecords = async () => {
               </View>
               
               <View style={recordStyles.familyMembers}>
-                {familyMembers.map(renderFamilyMember)}
-                <TouchableOpacity style={recordStyles.addMemberButton}>
+                {familyMembers.length > 0 &&
+  familyMembers.map(renderFamilyMember)
+}
+                <TouchableOpacity style={recordStyles.addMemberButton} onPress={() => setShowPopup(true)}>
                   <Ionicons name="add" size={20} color="#DDD" />
                 </TouchableOpacity>
               </View>
@@ -324,6 +388,55 @@ const fetchMedicalRecords = async () => {
     </View>
   </View>
 )}
+<Modal
+  visible={showPopup}
+  animationType="slide"
+  transparent
+  onRequestClose={() => setShowPopup(false)}
+>
+  <View style={{
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  }}>
+    <View style={{
+      backgroundColor: 'white',
+      padding: 20,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      height: '50%',
+    }}>
+      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Add Relative</Text>
+
+      <TextInput
+        placeholder="Access Token"
+        value={accessToken}
+        onChangeText={setAccessToken}
+        style={{ borderBottomWidth: 1, marginBottom: 15 }}
+      />
+
+      <TextInput
+        placeholder="Relation (e.g. father, sister)"
+        value={relation}
+        onChangeText={setRelation}
+        style={{ borderBottomWidth: 1, marginBottom: 15 }}
+      />
+
+      <TouchableOpacity
+  onPress={handleAddRelative}
+  style={{
+    backgroundColor: '#c52727',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  }}
+>
+  <Text style={{ color: 'white', fontWeight: 'bold' }}>Submit</Text>
+</TouchableOpacity>
+    </View>
+  </View>
+</Modal>
     </View>
   );
 }
