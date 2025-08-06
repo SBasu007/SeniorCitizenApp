@@ -12,13 +12,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { recordStyles } from '../styles/record.style';
 import { useUser } from '@clerk/clerk-expo';
 import * as DocumentPicker from 'expo-document-picker';
+import { Linking } from 'react-native';
 
 interface MedicalRecord {
   id: string;
   type: string;
   date: string;
   details: string;
-  status: 'normal' | 'low' | 'high';
   file_url: string;
 }
 
@@ -80,6 +80,7 @@ const pickAndUploadPDF = async () => {
     const responseData = await response.json();
     console.log('Upload success');
     Alert.alert('Success', 'PDF uploaded successfully!');
+    fetchMedicalRecords();
   } catch (error) {
     console.error('Error uploading PDF:', error);
   }
@@ -91,10 +92,9 @@ const fetchMedicalRecords = async () => {
 
     const transformed: MedicalRecord[] = data.map((record: any, index: number) => ({
       id: record.id,
-      type: record.parameter_name,
-      date: record.date,
-      details: `${record.value} ${record.unit}`,
-      status: record.status,
+      type: record.filename,
+      date: (record.created_at).split("T")[0],
+      details: record.summary,
       file_url:record.file_url,
     }));
     setMedicalRecords(transformed);
@@ -105,10 +105,7 @@ const fetchMedicalRecords = async () => {
 
 
   if (!user) return <Text>Loading user...</Text>;
-  // Sample data
-
-  
-
+ 
   const familyMembers: FamilyMember[] = [
     { id: '1', name: 'Mom', relation: 'Mother' },
     { id: '2', name: 'Dad', relation: 'Father' },
@@ -158,17 +155,20 @@ const fetchMedicalRecords = async () => {
     <View key={record.id} style={recordStyles.recordCard}>
       <View style={recordStyles.recordHeader}>
         <Text style={recordStyles.recordType}>{record.type}</Text>
-        <Text style={recordStyles.recordDate}>{new Date(record.date).toLocaleDateString()}</Text>
+        <Text style={recordStyles.recordDate}>{(record.date)}</Text>
       </View>
       <Text style={recordStyles.recordDetails}>{record.details}</Text>
       <View style={recordStyles.recordActions}>
-        <Text style={[recordStyles.recordStatus, getStatusStyle(record.status)]}>
+        {/* <Text style={[recordStyles.recordStatus, getStatusStyle(record.status)]}>
           {record.status.toUpperCase()}
-        </Text>
-        <TouchableOpacity style={recordStyles.viewButton}>
-          <Ionicons name="eye-outline" size={14} color="#007AFF" />
-          <Text style={recordStyles.viewButtonText}>View Details</Text>
-        </TouchableOpacity>
+        </Text> */}
+        <TouchableOpacity
+        style={recordStyles.viewButton}
+        onPress={() => Linking.openURL(record.file_url)} 
+      >
+        <Ionicons name="eye-outline" size={14} color="#007AFF" />
+        <Text style={recordStyles.viewButtonText}>View Details</Text>
+      </TouchableOpacity>
       </View>
     </View>
   );
@@ -245,7 +245,13 @@ const fetchMedicalRecords = async () => {
           {/* Recent Medical Records */}
           <View style={recordStyles.medicalRecordsSection}>
             <Text style={recordStyles.sectionTitle}>Recent Records</Text>
-            {medicalRecords.map(renderMedicalRecord)}
+            {medicalRecords.length > 0 ? (
+                medicalRecords.map(renderMedicalRecord)
+              ) : (
+                <Text style={{ textAlign: 'center', marginTop: 5, color: '#888' }}>
+                  No records uploaded yet.
+                </Text>
+              )}
           </View>
 
           {/* Family Connect */}

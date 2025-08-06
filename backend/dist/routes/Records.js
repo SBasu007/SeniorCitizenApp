@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/:userId', async (req, res) => {
     const { userId } = req.params;
     const { data, error } = await supabase
-        .from('health_parameters')
+        .from('records')
         .select('*')
         .eq('user_id', userId);
     if (error) {

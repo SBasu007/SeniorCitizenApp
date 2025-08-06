@@ -30,7 +30,7 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
     const prompt = `You are a smart and medically aware assistant. Analyze the following text extracted from a medical report and return a JSON object in the following structure:
 
                             {
-                            "findings_summary": "A brief, human-readable summary of the key medical findings.",
+                            "findings_summary": "A brief, human-readable summary of the key medical findings.1-2 short sentences",
                             "parameters": {
                                 "parameter_name": {
                                 "value": "measured_value",
@@ -68,7 +68,7 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
       return res.status(500).json({ error: "Model returned invalid JSON." });
     }
 
-    const { parameters } = parsed;
+    const { findings_summary,parameters } = parsed;
 
     if (!parameters || typeof parameters !== 'object' || Object.keys(parameters).length === 0) {
       console.error("No valid parameters found in parsed output");
@@ -100,21 +100,40 @@ const { data: publicUrlData } = supabase
 const fileUrl = publicUrlData?.publicUrl || null;
 
     // Delete uploaded file to clean up
-    fs.unlinkSync(file.path);
+    fs.unlinkSync(file.path)
+    
 
-    /* This code snippet is mapping over the entries of the `parameters` object and transforming each
-    entry into a new object structure. Here's a breakdown of what it's doing: */
-    const rows = Object.entries(parameters).map(([paramName, details]: [string, any]) => ({
-      user_id: userId,
+    //supabase insertion of record
+  const { data: recordData, error: insertRecordError } = await supabase
+  .from('records')  
+  .insert({
+    user_id: userId,
+    summary: findings_summary,
+    filename: fileName,
+    file_url: fileUrl
+  })
+  .select('id') 
+  .single();
+
+  if (insertRecordError) {
+  console.error("Failed to insert rows into Supabase:", insertRecordError);
+  return res.status(500).json({ error: "Failed to save pdf data to database." });
+}
+  
+  let record_id = recordData?.id;
+
+  //construct the row insert
+  const rows = Object.entries(parameters).map(([paramName, details]: [string, any]) => ({
+      
+      record_id:record_id,
       parameter_name: paramName,
       value: details.value,
       unit: details.unit,
       normal_range: details.normal_range,
       status: details.status,
-      file_url: fileUrl,
     }));
 
-    //supabase insertion
+    //supabase insertion of parameters
     const { data: insertData, error: insertError } = await supabase
   .from('health_parameters')  
   .insert(rows);
