@@ -26,7 +26,7 @@ router.get('/parameters/:userId', async (req, res) => {
   const { userId } = req.params;
 
    const { data, error } = await supabase
-    .rpc('get_unique_health_parameters', { user_id: userId });
+    .rpc('get_unique_health_parameters', { user_id_received: userId });
 
   if (error) {
     return res.status(500).json({ error: error.message });
@@ -40,11 +40,10 @@ router.get('/parameter-data/:userId/:parameterName', async (req, res) => {
   const { userId, parameterName } = req.params;
 
   const { data, error } = await supabase
-    .from('records')
-    .select('parameter_name, value, created_at')
-    .eq('user_id', userId)
-    .eq('parameter_name', parameterName)
-    .order('created_at', { ascending: true });
+    .rpc('get_parameter_data_by_user_and_name', {
+      user_id_input: userId,
+      parameter_name_input: parameterName
+    });
 
   if (error) {
     return res.status(500).json({ error: error.message });
