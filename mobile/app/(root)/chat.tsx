@@ -17,7 +17,7 @@ import { chatStyles } from '../styles/chat.styles';
 import Markdown from 'react-native-markdown-display';
 
 // Add your local IP and port here
-const API_BASE_URL = 'http://192.168.31.56:3000'; // Replace with your actual IP and port
+const API_BASE_URL = 'https://seniorcitizenapp.onrender.com/'; // Replace with your actual IP and port
 
 // Updated Message interface
 interface Message {
@@ -44,7 +44,7 @@ export default function ChatScreen() {
 
   const loadConversationHistory = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/ai-chat/history/${user?.id}`);
+      const response = await fetch(`${API_BASE_URL}ai-chat/history/${user?.id}`);
       const data = await response.json();
 
       if (data.history) {
@@ -78,7 +78,7 @@ export default function ChatScreen() {
     setIsTyping(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/ai-chat/message`, {
+      const response = await fetch(`${API_BASE_URL}ai-chat/message`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -140,7 +140,7 @@ export default function ChatScreen() {
           style: 'default',
           onPress: async () => {
             try {
-              await fetch(`${API_BASE_URL}/ai-chat/history/${user?.id}`, {
+              await fetch(`${API_BASE_URL}ai-chat/history/${user?.id}`, {
                 method: 'DELETE',
               });
               
@@ -160,7 +160,7 @@ export default function ChatScreen() {
   // Debug function to test file fetching
   const debugFiles = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/ai-chat/debug/files/${user?.id}`);
+      const response = await fetch(`${API_BASE_URL}ai-chat/debug/files/${user?.id}`);
       const data = await response.json();
       console.log('Debug files result:', data);
       Alert.alert('Debug Files', `Found ${data.filesFound} files. Check console for details.`);
