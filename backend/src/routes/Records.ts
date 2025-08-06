@@ -21,5 +21,19 @@ router.get('/:userId', async (req, res) => {
 
   res.json(data);
 });
+// GET /parameters/:userId
+router.get('/parameters/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+   const { data, error } = await supabase
+    .rpc('get_unique_health_parameters', { user_id: userId });
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json(data);
+});
+
 
 export default router;

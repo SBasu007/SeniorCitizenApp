@@ -9,8 +9,9 @@ import {
   Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { recordStyles } from '../styles/record.style';
+import { recordStyles } from '../../styles/record.style';
 import { useUser } from '@clerk/clerk-expo';
+import { router, useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { Linking } from 'react-native';
 import { ActivityIndicator } from 'react-native';
@@ -36,6 +37,7 @@ export default function RecordScreen() {
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const {user} = useUser() 
+  const router = useRouter();
 
 //pdf handling
 const pickAndUploadPDF = async () => {
@@ -245,7 +247,10 @@ const fetchMedicalRecords = async () => {
             <View style={recordStyles.quickActionsGrid}>
               {renderQuickAction('document-text-outline', 'Add Record', 'Upload new report', '#4CAF50', pickAndUploadPDF)}
               {renderQuickAction('calendar-outline', 'Schedule', 'Book appointment', '#2196F3', () => {})}
-              {renderQuickAction('fitness-outline', 'Symptoms', 'Log symptoms', '#FF9800', () => {})}
+              {renderQuickAction('fitness-outline', 'Symptoms', 'Log symptoms', '#FF9800', () => router.push({
+    pathname: '/(root)/(record)/analytics',
+    params: { userId: user?.id } 
+  }))}
               {renderQuickAction('medical-outline', 'Medications', 'Track medicines', '#9C27B0', () => {})}
             </View>
           </View>
