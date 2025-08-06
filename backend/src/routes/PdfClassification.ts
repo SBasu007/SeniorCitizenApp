@@ -121,7 +121,7 @@ const fileUrl = publicUrlData?.publicUrl || null;
 }
   
   let record_id = recordData?.id;
-
+  
   //construct the row insert
   const rows = Object.entries(parameters).map(([paramName, details]: [string, any]) => ({
       record_id:record_id,

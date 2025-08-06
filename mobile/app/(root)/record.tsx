@@ -13,6 +13,7 @@ import { recordStyles } from '../styles/record.style';
 import { useUser } from '@clerk/clerk-expo';
 import * as DocumentPicker from 'expo-document-picker';
 import { Linking } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 
 interface MedicalRecord {
   id: string;
@@ -33,6 +34,7 @@ export default function RecordScreen() {
   const [fadeAnim] = useState(new Animated.Value(0));
   const [slideAnim] = useState(new Animated.Value(50));
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
+  const [loading, setLoading] = useState(false);
   const {user} = useUser() 
 
 //pdf handling
@@ -48,6 +50,8 @@ const pickAndUploadPDF = async () => {
       console.log('Document upload cancelled or failed');
       return;
     }
+
+    setLoading(true); //loading starts
 
     const asset = result.assets[0];
     const fileToUpload = {
@@ -69,6 +73,8 @@ const pickAndUploadPDF = async () => {
       },
       body: formData,
     });
+
+    setLoading(false);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -157,7 +163,6 @@ const fetchMedicalRecords = async () => {
     <View key={record.id} style={recordStyles.recordCard}>
       <View style={recordStyles.recordHeader}>
         <Text style={recordStyles.recordType}>{record.type}</Text>
-        <Text style={recordStyles.recordDate}>{(record.date)}</Text>
       </View>
       <Text style={recordStyles.recordDetails}>{record.details}</Text>
       <View style={recordStyles.recordActions}>
@@ -171,6 +176,7 @@ const fetchMedicalRecords = async () => {
         <Ionicons name="eye-outline" size={14} color="#007AFF" />
         <Text style={recordStyles.viewButtonText}>View Details</Text>
       </TouchableOpacity>
+      <Text style={recordStyles.recordDate}>{(record.date)}</Text>
       </View>
     </View>
   );
@@ -290,6 +296,29 @@ const fetchMedicalRecords = async () => {
       {/* <TouchableOpacity style={recordStyles.fab}>
         <Ionicons name="add" size={28} color="#FFFFFF" />
       </TouchableOpacity> */}
+      {loading && (
+  <View style={{
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  }}>
+    <View style={{
+      backgroundColor: 'white',
+      padding: 20,
+      borderRadius: 10,
+      alignItems: 'center',
+    }}>
+      <ActivityIndicator size="large" color="#c52727" />
+      <Text style={{ marginTop: 10 }}>Uploading PDF...</Text>
+    </View>
+  </View>
+)}
     </View>
   );
 }
