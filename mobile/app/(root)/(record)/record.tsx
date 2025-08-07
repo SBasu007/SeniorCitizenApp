@@ -32,7 +32,7 @@ interface FamilyMember {
   avatar?: string;
 }
 
-type UserProfileType = {
+type UserProfile = {
   url:string;
   name: string;
   age: number;
@@ -47,7 +47,7 @@ export default function RecordScreen() {
   const [showPopup, setShowPopup] = useState(false);
   const [accessToken, setAccessToken] = useState('');
   const [relation, setRelation] = useState('');
-  const [profile, setProfile] = useState<UserProfileType | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
   const [selectedFamilyMember, setSelectedFamilyMember] = useState<FamilyMember | null>(null);
 const [showFamilyModal, setShowFamilyModal] = useState(false);
