@@ -32,11 +32,15 @@ interface FamilyMember {
   avatar?: string;
 }
 
-type UserProfile = {
-  url:string;
-  name: string;
-  age: number;
-};
+interface UserProfile {
+  name?: string;
+  age?: number;
+  disease?: string;
+  phone?: string;
+  email?: string;
+  avatar?: string;
+  access_token?: string;
+}
 
 export default function RecordScreen() {
   const [fadeAnim] = useState(new Animated.Value(0));
@@ -47,8 +51,6 @@ export default function RecordScreen() {
   const [showPopup, setShowPopup] = useState(false);
   const [accessToken, setAccessToken] = useState('');
   const [relation, setRelation] = useState('');
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-
   const [selectedFamilyMember, setSelectedFamilyMember] = useState<FamilyMember | null>(null);
 const [showFamilyModal, setShowFamilyModal] = useState(false);
   
@@ -128,12 +130,12 @@ const [showFamilyModal, setShowFamilyModal] = useState(false);
 
       setLoading(false);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Upload failed:', errorText);
-      Alert.alert(errorText);
-      return;
-    }
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Upload failed:', errorText);
+        Alert.alert(errorText);
+        return;
+      }
 
       const responseData = await response.json();
       console.log('Upload success');
@@ -183,16 +185,17 @@ const [showFamilyModal, setShowFamilyModal] = useState(false);
         avatar: item.avatar || '', // optional
       }));
 
-    setFamilyMembers(relatives);
-  } catch (error) {
-    console.error('Error fetching relatives:', error);
-  }
-};
-const handleAddRelative = async () => {
-  if (!accessToken || !relation) {
-    Alert.alert('Error', 'Please fill all fields');
-    return;
-  }
+      setFamilyMembers(relatives);
+    } catch (error) {
+      console.error('Error fetching relatives:', error);
+    }
+  };
+
+  const handleAddRelative = async () => {
+    if (!accessToken || !relation) {
+      Alert.alert('Error', 'Please fill all fields');
+      return;
+    }
 
     try {
       const res = await fetch('https://seniorcitizenapp.onrender.com/profile/addRelative', {
@@ -207,21 +210,20 @@ const handleAddRelative = async () => {
 
       const result = await res.json();
 
-    if (result.success) {
-      Alert.alert('Success', 'Relative added successfully');
-      setShowPopup(false);
-      setAccessToken('');
-      setRelation('');
-      fetchRelatives()
-    } else {
-      Alert.alert('Failed', result.message || 'Could not add relative');
+      if (result.success) {
+        Alert.alert('Success', 'Relative added successfully');
+        setShowPopup(false);
+        setAccessToken('');
+        setRelation('');
+        fetchRelatives();
+      } else {
+        Alert.alert('Failed', result.message || 'Could not add relative');
+      }
+    } catch (err) {
+      console.error('Error adding relative:', err);
+      Alert.alert('Error', 'Something went wrong');
     }
-  } catch (err) {
-    console.error('Error adding relative:', err);
-    Alert.alert('Error', 'Something went wrong');
-  }
-};
-
+  };
 
   if (!user) return <Text>Loading user...</Text>;
 
@@ -291,16 +293,19 @@ const handleAddRelative = async () => {
     </View>
   );
 
-const renderFamilyMember = (member: FamilyMember) => (
-  <TouchableOpacity key={member.relative_user_id} style={recordStyles.familyMember}>
-    <View style={recordStyles.familyMemberImage}>
-      <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>
-        {member.name.charAt(0)}
-      </Text>
-    </View>
-    <Text style={recordStyles.familyMemberName}>{member.relation}</Text>
-  </TouchableOpacity>
-);
+  const renderFamilyMember = (member: FamilyMember) => (
+   <TouchableOpacity key={member.relative_user_id} style={recordStyles.familyMember}  onPress={() => {
+      setSelectedFamilyMember(member);
+      setShowFamilyModal(true);
+    }}>
+      <View style={recordStyles.familyMemberImage}>
+        <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>
+          {member.name.charAt(0)}
+        </Text>
+      </View>
+      <Text style={recordStyles.familyMemberName}>{member.relation}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={recordStyles.container}>
@@ -324,12 +329,18 @@ const renderFamilyMember = (member: FamilyMember) => (
           <View style={recordStyles.profileSection}>
             <View style={recordStyles.profileHeader}>
               <View style={recordStyles.profileImageContainer}>
-                <Text style={recordStyles.profileInitials}>JD</Text>
+                <Text style={recordStyles.profileInitials}>
+                  {userName ? userName.charAt(0).toUpperCase() : 'U'}
+                </Text>
               </View>
               <View style={recordStyles.profileInfo}>
-                <Text style={recordStyles.profileName}>John Doe {user.id}</Text>
-                <Text style={recordStyles.profileDetails}>Age: 32 • Male</Text>
-                <Text style={recordStyles.profileDetails}>Blood Type: O+</Text>
+                <Text style={recordStyles.profileName}>
+                  {userName ? userName : 'Loading...'}
+                </Text>
+                <Text style={recordStyles.profileDetails}>
+                  Age: {userProfile?.age || 'N/A'} • {userProfile?.disease ? `${userProfile.disease}` : 'No conditions'}
+                </Text>
+                {/* <Text style={recordStyles.profileDetails}>Blood Type: O+</Text> */}
                 <Text style={recordStyles.profileDetails}>Last Checkup: Aug 2, 2024</Text>
               </View>
             </View>
@@ -467,18 +478,64 @@ const renderFamilyMember = (member: FamilyMember) => (
               style={{ borderBottomWidth: 1, marginBottom: 15 }}
             />
 
-      <TouchableOpacity
-  onPress={handleAddRelative}
-  style={{
-    backgroundColor: '#c52727',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  }}
+            <TouchableOpacity
+              onPress={handleAddRelative}
+              style={{
+                backgroundColor: '#c52727',
+                paddingVertical: 12,
+                borderRadius: 8,
+                alignItems: 'center',
+                marginTop: 10,
+              }}
+            >
+              <Text style={{ color: 'white', fontWeight: 'bold' }}>Submit</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+  visible={showFamilyModal}
+  animationType="slide"
+  transparent
+  onRequestClose={() => setShowFamilyModal(false)}
 >
-  <Text style={{ color: 'white', fontWeight: 'bold' }}>Submit</Text>
-</TouchableOpacity>
+  <View style={{
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  }}>
+    <View style={{
+      backgroundColor: 'white',
+      padding: 20,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      height: '55%',
+    }}>
+      <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 20 }}>
+        {selectedFamilyMember?.name} ({selectedFamilyMember?.relation})
+      </Text>
+      
+      <View style={recordStyles.quickActionsGrid}>
+              {renderQuickAction('document-text-outline', 'Add Record', 'Upload new report', '#4CAF50', pickAndUploadPDF)}
+              {renderQuickAction('calendar-outline', 'Schedule', 'Book appointment', '#2196F3', () => {})}
+              {renderQuickAction('stats-chart', 'Analytics', 'Show Records', '#FF9800', () => router.push({
+    pathname: '/(root)/(record)/analytics',
+    params: { userId: user?.id } 
+  }))}
+              {renderQuickAction('medical-outline', 'Medications', 'Track medicines', '#9C27B0', () => {})}
+            </View>
+      <TouchableOpacity
+        onPress={() => setShowFamilyModal(false)}
+        style={{
+          marginTop: 20,
+          backgroundColor: '#c52727',
+          paddingVertical: 10,
+          borderRadius: 8,
+          alignItems: 'center',
+        }}
+      >
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>Close</Text>
+      </TouchableOpacity>
     </View>
   </View>
 </Modal>
