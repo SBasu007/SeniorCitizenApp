@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -15,13 +16,16 @@ import { useUser } from '@clerk/clerk-expo';
 import { chatStyles } from '../styles/chat.styles';
 import Markdown from 'react-native-markdown-display';
 
-// Add the missing Message interface
+// Add your local IP and port here
+const API_BASE_URL = 'https://seniorcitizenapp.onrender.com/'; // Replace with your actual IP and port
+
+// Updated Message interface
 interface Message {
   id: string;
   text: string;
   isUser: boolean;
   timestamp: Date;
-  type?: 'general' | 'booking';
+  type?: 'general' | 'booking' | 'file_analysis' | 'health_advice';
   metadata?: any;
 }
 
@@ -40,7 +44,7 @@ export default function ChatScreen() {
 
   const loadConversationHistory = async () => {
     try {
-      const response = await fetch(`https://seniorcitizenapp.onrender.com/ai-chat/history/${user?.id}`);
+      const response = await fetch(`${API_BASE_URL}ai-chat/history/${user?.id}`);
       const data = await response.json();
 
       if (data.history) {
@@ -54,6 +58,7 @@ export default function ChatScreen() {
       }
     } catch (error) {
       console.error('Failed to load conversation history:', error);
+      Alert.alert('Connection Error', 'Make sure your server is running and accessible.');
     }
   };
 
@@ -73,7 +78,7 @@ export default function ChatScreen() {
     setIsTyping(true);
 
     try {
-      const response = await fetch('https://seniorcitizenapp.onrender.com/ai-chat/message', {
+      const response = await fetch(`${API_BASE_URL}ai-chat/message`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +116,7 @@ export default function ChatScreen() {
       console.error('Chat error:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "I'm sorry, I can't connect right now. Please check your internet connection and try again.",
+        text: "I'm sorry, I can't connect to the server. Please check your connection and make sure the server is running.",
         isUser: false,
         timestamp: new Date(),
       };
@@ -121,23 +126,6 @@ export default function ChatScreen() {
     }
   };
 
-  const handleVoicePress = () => {
-    console.log('Voice button pressed');
-  };
-
-  // Add the missing handleAvatarPress function
-  const handleAvatarPress = () => {
-    router.push('/profile');
-  };
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  // Add new chat function
   const startNewChat = async () => {
     Alert.alert(
       'New Chat',
@@ -152,12 +140,10 @@ export default function ChatScreen() {
           style: 'default',
           onPress: async () => {
             try {
-              // Clear conversation on backend
-              await fetch(`https://seniorcitizenapp.onrender.com/ai-chat/history/${user?.id}`, {
+              await fetch(`${API_BASE_URL}ai-chat/history/${user?.id}`, {
                 method: 'DELETE',
               });
               
-              // Clear local messages
               setMessages([]);
               setInputText('');
               setIsTyping(false);
@@ -169,6 +155,34 @@ export default function ChatScreen() {
         },
       ]
     );
+  };
+
+  // Debug function to test file fetching
+  const debugFiles = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}ai-chat/debug/files/${user?.id}`);
+      const data = await response.json();
+      console.log('Debug files result:', data);
+      Alert.alert('Debug Files', `Found ${data.filesFound} files. Check console for details.`);
+    } catch (error) {
+      console.error('Debug files error:', error);
+      Alert.alert('Debug Error', 'Failed to fetch files for debugging');
+    }
+  };
+
+  const handleVoicePress = () => {
+    console.log('Voice button pressed');
+  };
+
+  const handleAvatarPress = () => {
+    router.push('/profile');
+  };
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   const renderMessage = (message: Message) => (
@@ -183,9 +197,16 @@ export default function ChatScreen() {
         style={[
           chatStyles.messageBubble,
           message.isUser ? chatStyles.userMessage : chatStyles.aiMessage,
-          message.type === 'booking' && !message.isUser && chatStyles.bookingMessage
+          message.type === 'file_analysis' && !message.isUser && chatStyles.fileAnalysisMessage
         ]}
       >
+        {message.type === 'file_analysis' && !message.isUser && (
+          <View style={chatStyles.fileAnalysisHeader}>
+            <Ionicons name="document-text" size={16} color="#059669" />
+            <Text style={chatStyles.fileAnalysisTitle}>File Analysis Result</Text>
+          </View>
+        )}
+
         {message.isUser ? (
           <Text
             style={[
@@ -239,8 +260,31 @@ export default function ChatScreen() {
       </View>
       <Text style={chatStyles.welcomeTitle}>Diagno AI</Text>
       <Text style={chatStyles.welcomeSubtitle}>
-        Ask me anything about your health, book appointments, or get medical advice!
+        Ask me anything about your health, analyze your uploaded files, book appointments, or get medical advice!
       </Text>
+      
+      <View style={chatStyles.welcomeExamples}>
+        <Text style={chatStyles.examplesTitle}>Try asking:</Text>
+        <Text style={chatStyles.exampleText}>• "Analyze my lab report"</Text>
+        <Text style={chatStyles.exampleText}>• "Check my uploaded files"</Text>
+        <Text style={chatStyles.exampleText}>• "What do my test results mean?"</Text>
+        <Text style={chatStyles.exampleText}>• "I have a headache, what should I do?"</Text>
+      </View>
+
+      {/* Debug button for development */}
+      {__DEV__ && (
+        <TouchableOpacity
+          onPress={debugFiles}
+          style={{
+            marginTop: 20,
+            padding: 10,
+            backgroundColor: '#DC2626',
+            borderRadius: 8,
+          }}
+        >
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>Debug Files</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
@@ -250,17 +294,16 @@ export default function ChatScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
     >
-      {/* Updated Header with New Chat button */}
+      {/* Header */}
       <View style={chatStyles.header}>
         <View style={chatStyles.headerInfo}>
           <Text style={chatStyles.headerTitle}>Diagno AI</Text>
           <Text style={chatStyles.headerSubtitle}>
-            {isTyping ? 'Typing...' : 'Online'}
+            {isTyping ? 'Analyzing...' : 'Online'}
           </Text>
         </View>
         
         <View style={chatStyles.headerActions}>
-          {/* New Chat Button */}
           {messages.length > 0 && (
             <TouchableOpacity
               style={chatStyles.newChatButton}
@@ -271,17 +314,15 @@ export default function ChatScreen() {
             </TouchableOpacity>
           )}
           
-          {/* Profile Avatar */}
           <TouchableOpacity
-  style={chatStyles.avatarContainer}
-  onPress={handleAvatarPress}
-  activeOpacity={0.7}
->
-  <Text style={chatStyles.avatarText}>
-    {user?.firstName?.charAt(0) ?? "U"}
-  </Text>
-</TouchableOpacity>
-
+            style={chatStyles.avatarContainer}
+            onPress={handleAvatarPress}
+            activeOpacity={0.7}
+          >
+            <Text style={chatStyles.avatarText}>
+              {user?.firstName?.charAt(0) ?? "U"}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -298,7 +339,10 @@ export default function ChatScreen() {
             {messages.map(renderMessage)}
             {isTyping && (
               <View style={chatStyles.typingIndicator}>
-                <Text style={chatStyles.typingText}>Diagno AI is thinking...</Text>
+                <ActivityIndicator size="small" color="#059669" />
+                <Text style={chatStyles.typingText}>
+                  Diagno AI is analyzing...
+                </Text>
               </View>
             )}
           </>
@@ -318,7 +362,7 @@ export default function ChatScreen() {
 
           <TextInput
             style={chatStyles.textInput}
-            placeholder="Ask about health, book appointments..."
+            placeholder="Ask about health, analyze my files, book appointments..."
             placeholderTextColor="#999"
             value={inputText}
             onChangeText={setInputText}
@@ -345,7 +389,6 @@ export default function ChatScreen() {
           </TouchableOpacity>
         </View>
       </View>
-      
     </KeyboardAvoidingView>
   );
 }
