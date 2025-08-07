@@ -31,6 +31,12 @@ interface FamilyMember {
   avatar?: string;
 }
 
+type UserProfileType = {
+  url:string;
+  name: string;
+  age: number;
+};
+
 export default function RecordScreen() {
   const [fadeAnim] = useState(new Animated.Value(0));
   const [slideAnim] = useState(new Animated.Value(50));
@@ -40,6 +46,10 @@ export default function RecordScreen() {
   const [showPopup, setShowPopup] = useState(false);
   const [accessToken, setAccessToken] = useState('');
   const [relation, setRelation] = useState('');
+  const [profile, setProfile] = useState<UserProfileType | null>(null);
+
+  const [selectedFamilyMember, setSelectedFamilyMember] = useState<FamilyMember | null>(null);
+const [showFamilyModal, setShowFamilyModal] = useState(false);
   const {user} = useUser() 
   const router = useRouter();
 
@@ -84,8 +94,8 @@ const pickAndUploadPDF = async () => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Upload failed:', errorText);
-      Alert.alert(errorText);
+      const errorJson = JSON.parse(errorText);
+  Alert.alert(errorJson.error);
       return;
     }
 
@@ -140,6 +150,7 @@ const fetchRelatives = async () => {
     console.error('Error fetching relatives:', error);
   }
 };
+//add new relatives
 const handleAddRelative = async () => {
   if (!accessToken || !relation) {
     Alert.alert('Error', 'Please fill all fields');
@@ -173,7 +184,27 @@ const handleAddRelative = async () => {
     Alert.alert('Error', 'Something went wrong');
   }
 };
+const fetchProfile = async () => {
+      try {
+        const response = await fetch(`https://seniorcitizenapp.onrender.com/profile/${user?.id}`);
+        if (!response.ok) throw new Error('Network response was not ok');
+         const json = await response.json();
+         const { name, age, avatar } = json.data;
 
+        const userProfile: UserProfileType = { name, age, url:avatar };
+
+        setProfile(userProfile);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+     useEffect(() => {
+    if (!user) return;
+    fetchProfile();
+  }, [user]);
 
   if (!user) return <Text>Loading user...</Text>;
  
@@ -246,7 +277,10 @@ const handleAddRelative = async () => {
   );
 
 const renderFamilyMember = (member: FamilyMember) => (
-  <TouchableOpacity key={member.relative_user_id} style={recordStyles.familyMember}>
+  <TouchableOpacity key={member.relative_user_id} style={recordStyles.familyMember}  onPress={() => {
+      setSelectedFamilyMember(member);
+      setShowFamilyModal(true);
+    }}>
     <View style={recordStyles.familyMemberImage}>
       <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>
         {member.name.charAt(0)}
@@ -278,13 +312,13 @@ const renderFamilyMember = (member: FamilyMember) => (
           <View style={recordStyles.profileSection}>
             <View style={recordStyles.profileHeader}>
               <View style={recordStyles.profileImageContainer}>
-                <Text style={recordStyles.profileInitials}>JD</Text>
+                <Text style={recordStyles.profileInitials}>U</Text>
               </View>
               <View style={recordStyles.profileInfo}>
-                <Text style={recordStyles.profileName}>John Doe {user.id}</Text>
-                <Text style={recordStyles.profileDetails}>Age: 32 • Male</Text>
+                <Text style={recordStyles.profileName}>{profile?.name}</Text>
+                <Text style={recordStyles.profileDetails}>{profile?.age} • Male</Text>
                 <Text style={recordStyles.profileDetails}>Blood Type: O+</Text>
-                <Text style={recordStyles.profileDetails}>Last Checkup: Aug 2, 2024</Text>
+                <Text style={recordStyles.profileDetails}>Last Checkup: -</Text>
               </View>
             </View>
             <View style={recordStyles.profileStats}>
@@ -434,6 +468,52 @@ const renderFamilyMember = (member: FamilyMember) => (
 >
   <Text style={{ color: 'white', fontWeight: 'bold' }}>Submit</Text>
 </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+<Modal
+  visible={showFamilyModal}
+  animationType="slide"
+  transparent
+  onRequestClose={() => setShowFamilyModal(false)}
+>
+  <View style={{
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  }}>
+    <View style={{
+      backgroundColor: 'white',
+      padding: 20,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      height: '55%',
+    }}>
+      <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 20 }}>
+        {selectedFamilyMember?.name} ({selectedFamilyMember?.relation})
+      </Text>
+      
+      <View style={recordStyles.quickActionsGrid}>
+              {renderQuickAction('document-text-outline', 'Add Record', 'Upload new report', '#4CAF50', pickAndUploadPDF)}
+              {renderQuickAction('calendar-outline', 'Schedule', 'Book appointment', '#2196F3', () => {})}
+              {renderQuickAction('stats-chart', 'Analytics', 'Show Records', '#FF9800', () => router.push({
+    pathname: '/(root)/(record)/analytics',
+    params: { userId: user?.id } 
+  }))}
+              {renderQuickAction('medical-outline', 'Medications', 'Track medicines', '#9C27B0', () => {})}
+            </View>
+      <TouchableOpacity
+        onPress={() => setShowFamilyModal(false)}
+        style={{
+          marginTop: 20,
+          backgroundColor: '#c52727',
+          paddingVertical: 10,
+          borderRadius: 8,
+          alignItems: 'center',
+        }}
+      >
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>Close</Text>
+      </TouchableOpacity>
     </View>
   </View>
 </Modal>

@@ -38,7 +38,7 @@ export default function Page() {
       }
     } catch (err) {
       if (err.errors?.[0]?.code === "form_password_incorrect") {
-        setError("Password thik se de 😡");
+        setError("Password is wrong");
       } else {
         setError("An error occurred. Please try again.");
       }
@@ -55,7 +55,7 @@ export default function Page() {
     >
       <View style={styles.container}>
       
-        <Text style={styles.title}>Welcome Back Januu</Text>
+        <Text style={styles.title}>Welcome Back! </Text>
 
         {error ? (
           <View style={styles.errorBox}>
