@@ -7,8 +7,6 @@ const router = express.Router();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // Initialize Supabase
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-console.log('🔑 SUPABASE_URL:', process.env.SUPABASE_URL);
-console.log('🔑 SUPABASE_KEY:', process.env.SUPABASE_ANON_KEY);
 // Store conversation history
 const conversationHistory = new Map();
 // Helper function to fetch file from URL and convert to base64
